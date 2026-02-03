@@ -1,0 +1,29 @@
+name: Pipeline
+
+on: [ workflow_dispatch, push, pull_request ]
+
+concurrency:
+  group: ${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  salloc:
+    name: Salloc
+    uses: ./.github/workflows/salloc.yaml
+
+  norminette:
+    name: Norminette
+    uses: ./.github/workflows/norminette.yaml
+
+  build_on_ubuntu_22_04:
+    name: Build on Ubuntu 22.04
+    uses: ./.github/workflows/build.yaml
+    with:
+      ubuntu-version: 22.04
+      packages: libsdl2-2.0-0 libsdl2-dev
+
+  build_on_ubuntu_latest:
+    name: Build on Ubuntu latest
+    uses: ./.github/workflows/build.yaml
+    with:
+      packages: libsdl2-2.0-0 libsdl2-dev

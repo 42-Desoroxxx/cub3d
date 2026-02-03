@@ -1,0 +1,17 @@
+### Prerequisites ###
+*.d
+
+### Object files ###
+*.o
+
+### Windows ###
+desktop.ini
+
+### macOS ###
+.DS_Store
+
+### IntelliJ ###
+.idea
+
+### Project ###
+cub3d
