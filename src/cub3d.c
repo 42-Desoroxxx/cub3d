@@ -54,6 +54,7 @@ int	main(int argc, const char *argv[])
 		fatal_error("Unable to initialize mlx");
 	create_textures();
 	create_window();
+	setup_events(&g_context);
 	mlx_set_fps_goal(g_context.context, 24);
 	mlx_add_loop_hook(g_context.context, loop_hook, &g_context);
 	mlx_loop(g_context.context);

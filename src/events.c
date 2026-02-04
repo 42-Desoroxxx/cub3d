@@ -70,5 +70,5 @@ void	setup_events(t_context *context)
 	mlx_on_event(context->context, context->window,
 		MLX_WINDOW_EVENT, on_window_event, &context->context);
 	mlx_on_event(context->context, context->window,
-		MLX_KEYDOWN, on_key_down_event, &context);
+		MLX_KEYDOWN, on_key_down_event, context);
 }
