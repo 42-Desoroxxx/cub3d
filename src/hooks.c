@@ -27,8 +27,8 @@ void	loop_hook(void *param)
 		while (++x < WINDOW_WIDTH)
 		{
 			if (y < WINDOW_HEIGHT / 2)
-				mlx_set_image_pixel(c->context, c->textures.screen, x, y, (mlx_color){.rgba = 0x6699CCFF});
+				mlx_set_image_pixel(c->context, c->textures.framebuffer, x, y, (mlx_color){.rgba = 0x6699CCFF});
 		}
 	}
-	mlx_put_image_to_window(c->context, c->window, c->textures.screen, 0, 0);
+	mlx_put_image_to_window(c->context, c->window, c->textures.framebuffer, 0, 0);
 }
