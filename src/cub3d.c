@@ -30,6 +30,9 @@ static void	create_textures(void)
 	g_context.textures.wall_east = create_texture("assets/wall_east.png");
 	g_context.textures.wall_south = create_texture("assets/wall_south.png");
 	g_context.textures.wall_west = create_texture("assets/wall_west.png");
+	g_context.textures.screen = mlx_new_image(g_context.context, WINDOW_WIDTH, WINDOW_HEIGHT);
+	if (g_context.textures.screen == NULL)
+		fatal_error("Unable to create screen texture");
 }
 
 static void	create_window(void)
@@ -38,8 +41,9 @@ static void	create_window(void)
 
 	ft_bzero(&window_info, sizeof(mlx_window_create_info));
 	window_info.title = "cub3d";
-	window_info.width = 1280;
-	window_info.height = 720;
+	window_info.width = WINDOW_WIDTH;
+	window_info.height = WINDOW_HEIGHT;
+	window_info.is_resizable = false;
 	g_context.window = mlx_new_window(g_context.context, &window_info);
 	if (g_context.window == NULL)
 		fatal_error("Unable to create window");
@@ -73,6 +77,8 @@ static void	cleanup(void)
 		mlx_destroy_image(g_context.context, g_context.textures.wall_south);
 	if (g_context.textures.wall_west != NULL)
 		mlx_destroy_image(g_context.context, g_context.textures.wall_west);
+	if (g_context.textures.screen != NULL)
+		mlx_destroy_image(g_context.context, g_context.textures.screen);
 	if (g_context.window != NULL)
 		mlx_destroy_window(g_context.context, g_context.window);
 	if (g_context.context != NULL)

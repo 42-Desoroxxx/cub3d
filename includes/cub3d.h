@@ -21,6 +21,9 @@
 # include <SDL_scancode.h>
 # include <fcntl.h>
 
+#define WINDOW_WIDTH 1280
+#define WINDOW_HEIGHT 720
+
 typedef enum e_direction : uint8_t
 {
 	NORTH,
@@ -42,6 +45,7 @@ typedef struct s_textures
 	void	*wall_east;
 	void	*wall_south;
 	void	*wall_west;
+	void	*screen;
 }	t_textures;
 
 typedef struct s_context

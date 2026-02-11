@@ -12,12 +12,64 @@
 
 #include <cub3d.h>
 
-static void	move_player(t_context *context, int x, int y)
+static void	move_player_sideways(t_context *context, bool left)
 {
-	if (context->map[y][x] == '1')
+	const t_direction	direction = context->player.direction;
+	int					x;
+	int					z;
+
+	x = context->player.x;
+	z = context->player.z;
+	if (direction == NORTH && left)
+		context->player.x--;
+	else if (direction == NORTH)
+		context->player.x++;
+	else if (direction == EAST && left)
+		context->player.z--;
+	else if (direction == EAST)
+		context->player.z++;
+	else if (direction == SOUTH && left)
+		context->player.x++;
+	else if (direction == SOUTH)
+		context->player.x--;
+	else if (direction == WEST && left)
+		context->player.z++;
+	else if (direction == WEST)
+		context->player.z--;
+	if (context->map[z][x] == '1')
 		return ;
 	context->player.x = x;
-	context->player.z = y;
+	context->player.z = z;
+}
+
+static void	move_player(t_context *context, bool forward)
+{
+	const t_direction	direction = context->player.direction;
+	int					x;
+	int					z;
+
+	x = context->player.x;
+	z = context->player.z;
+	if (direction == NORTH && forward)
+		context->player.z--;
+	else if (direction == NORTH)
+		context->player.z++;
+	else if (direction == EAST && forward)
+		context->player.x++;
+	else if (direction == EAST)
+		context->player.x--;
+	else if (direction == SOUTH && forward)
+		context->player.z++;
+	else if (direction == SOUTH)
+		context->player.z--;
+	else if (direction == WEST && forward)
+		context->player.x--;
+	else if (direction == WEST)
+		context->player.x++;
+	if (context->map[z][x] == '1')
+		return ;
+	context->player.x = x;
+	context->player.z = z;
 }
 
 static void	on_window_event(const int event, void *param)
@@ -34,13 +86,13 @@ static void	on_key_down_event(const int key, void *param)
 	if (key == SDL_SCANCODE_ESCAPE)
 		mlx_loop_end(context->context);
 	else if (key == SDL_SCANCODE_W)
-		move_player(context, context->player.x, context->player.z - 1);
+		move_player(context, true);
 	else if (key == SDL_SCANCODE_A)
-		move_player(context, context->player.x - 1, context->player.z);
+		move_player_sideways(context, true);
 	else if (key == SDL_SCANCODE_S)
-		move_player(context, context->player.x, context->player.z + 1);
+		move_player(context, false);
 	else if (key == SDL_SCANCODE_D)
-		move_player(context, context->player.x + 1, context->player.z);
+		move_player_sideways(context, false);
 	else if (key == SDL_SCANCODE_LEFT)
 	{
 		if (context->player.direction == NORTH)
