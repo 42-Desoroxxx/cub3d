@@ -21,21 +21,21 @@ static void	move_player_sideways(t_context *context, bool left)
 	x = context->player.x;
 	z = context->player.z;
 	if (direction == NORTH && left)
-		context->player.x--;
+		x--;
 	else if (direction == NORTH)
-		context->player.x++;
+		x++;
 	else if (direction == EAST && left)
-		context->player.z--;
+		z--;
 	else if (direction == EAST)
-		context->player.z++;
+		z++;
 	else if (direction == SOUTH && left)
-		context->player.x++;
+		x++;
 	else if (direction == SOUTH)
-		context->player.x--;
+		x--;
 	else if (direction == WEST && left)
-		context->player.z++;
+		z++;
 	else if (direction == WEST)
-		context->player.z--;
+		z--;
 	if (context->map[z][x] == '1')
 		return ;
 	context->player.x = x;
@@ -51,21 +51,21 @@ static void	move_player(t_context *context, bool forward)
 	x = context->player.x;
 	z = context->player.z;
 	if (direction == NORTH && forward)
-		context->player.z--;
+		z--;
 	else if (direction == NORTH)
-		context->player.z++;
+		z++;
 	else if (direction == EAST && forward)
-		context->player.x++;
+		x++;
 	else if (direction == EAST)
-		context->player.x--;
+		x--;
 	else if (direction == SOUTH && forward)
-		context->player.z++;
+		z++;
 	else if (direction == SOUTH)
-		context->player.z--;
+		z--;
 	else if (direction == WEST && forward)
-		context->player.x--;
+		x--;
 	else if (direction == WEST)
-		context->player.x++;
+		x++;
 	if (context->map[z][x] == '1')
 		return ;
 	context->player.x = x;

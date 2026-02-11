@@ -12,23 +12,139 @@
 
 #include <cub3d.h>
 
-void	loop_hook(void *param)
-{
-	const t_context	*c = param;
-	int				x;
-	int				y;
+/* hooks.c */
+#include <cub3d.h>
+#include <math.h>
 
-	c = param;
-	mlx_clear_window(c->context, c->window, (mlx_color){.rgba = 0x996633FF});
+#define TEX 64
+
+static void	get_dir(t_direction d, float dir[4])
+{
+	dir[0] = 0;
+	dir[1] = 0;
+	dir[2] = 0;
+	dir[3] = 0;
+	if (d == NORTH)
+	{
+		dir[1] = -1;
+		dir[2] = 0.66f;
+	}
+	else if (d == SOUTH)
+	{
+		dir[1] = 1;
+		dir[2] = -0.66f;
+	}
+	else if (d == EAST)
+	{
+		dir[0] = 1;
+		dir[3] = 0.66f;
+	}
+	else
+	{
+		dir[0] = -1;
+		dir[3] = -0.66f;
+	}
+}
+
+static mlx_image	get_tex(t_context *c, int side, float rx, float rz)
+{
+	if (side == 0 && rx > 0)
+		return (c->textures.wall_east);
+	if (side == 0)
+		return (c->textures.wall_west);
+	if (rz > 0)
+		return (c->textures.wall_south);
+	return (c->textures.wall_north);
+}
+
+static void	cast_ray(t_context *c, float rx, float rz, float out[3])
+{
+	float	p[2];
+	int		m[2];
+	float	dd[2];
+	float	sd[2];
+	int		s[2];
+
+	p[0] = c->player.x + 0.5f;
+	p[1] = c->player.z + 0.5f;
+	m[0] = (int)p[0];
+	m[1] = (int)p[1];
+	dd[0] = rx == 0 ? 1e30f : fabsf(1.0f / rx);
+	dd[1] = rz == 0 ? 1e30f : fabsf(1.0f / rz);
+	s[0] = rx < 0 ? -1 : 1;
+	s[1] = rz < 0 ? -1 : 1;
+	sd[0] = rx < 0 ? (p[0] - m[0]) * dd[0] : (m[0] + 1.0f - p[0]) * dd[0];
+	sd[1] = rz < 0 ? (p[1] - m[1]) * dd[1] : (m[1] + 1.0f - p[1]) * dd[1];
+	out[2] = 0;
+	while (c->map[m[1]][m[0]] != '1')
+	{
+		if (sd[0] < sd[1])
+		{
+			sd[0] += dd[0];
+			m[0] += s[0];
+			out[2] = 0;
+		}
+		else
+		{
+			sd[1] += dd[1];
+			m[1] += s[1];
+			out[2] = 1;
+		}
+	}
+	if ((int)out[2] == 0)
+		out[0] = (m[0] - p[0] + (1 - s[0]) / 2.0f) / rx;
+	else
+		out[0] = (m[1] - p[1] + (1 - s[1]) / 2.0f) / rz;
+	if ((int)out[2] == 0)
+		out[1] = p[1] + out[0] * rz;
+	else
+		out[1] = p[0] + out[0] * rx;
+	out[1] -= floorf(out[1]);
+}
+
+static void	draw_col(t_context *c, int x, float dir[4])
+{
+	float		out[3];
+	float		ray[2];
+	mlx_image	tex;
+	int			col[3];
+	int			y;
+
+	ray[0] = dir[0] + dir[2] * (2.0f * x / WINDOW_WIDTH - 1.0f);
+	ray[1] = dir[1] + dir[3] * (2.0f * x / WINDOW_WIDTH - 1.0f);
+	cast_ray(c, ray[0], ray[1], out);
+	col[0] = (int)(WINDOW_HEIGHT / out[0]);
+	col[1] = (WINDOW_HEIGHT - col[0]) / 2;
+	col[2] = (int)(out[1] * TEX) % TEX;
+	tex = get_tex(c, (int)out[2], ray[0], ray[1]);
 	y = -1;
 	while (++y < WINDOW_HEIGHT)
 	{
-		x = -1;
-		while (++x < WINDOW_WIDTH)
-		{
-			if (y < WINDOW_HEIGHT / 2)
-				mlx_set_image_pixel(c->context, c->textures.framebuffer, x, y, (mlx_color){.rgba = 0x6699CCFF});
-		}
+		if (y >= col[1] && y < col[1] + col[0])
+			mlx_set_image_pixel(c->context, c->textures.framebuffer, x, y,
+				mlx_get_image_pixel(c->context, tex, col[2],
+					((y - col[1]) * TEX) / col[0]));
+		else if (y < WINDOW_HEIGHT / 2)
+			mlx_set_image_pixel(c->context, c->textures.framebuffer, x, y,
+				(mlx_color){.rgba = 0x6699CCFF});
+		else
+			mlx_set_image_pixel(c->context, c->textures.framebuffer, x, y,
+				(mlx_color){.rgba = 0x996633FF});
 	}
-	mlx_put_image_to_window(c->context, c->window, c->textures.framebuffer, 0, 0);
+}
+
+void	loop_hook(void *param)
+{
+	t_context	*c;
+	float		dir[4];
+	int			x;
+
+	c = param;
+	mlx_clear_window(c->context, c->window, (mlx_color){.rgba = 0x000000FF});
+	get_dir(c->player.direction, dir);
+	x = -1;
+	while (++x < WINDOW_WIDTH)
+		draw_col(c, x, dir);
+	mlx_put_image_to_window(c->context, c->window,
+		c->textures.framebuffer, 0, 0);
 }
