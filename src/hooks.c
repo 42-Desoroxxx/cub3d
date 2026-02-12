@@ -197,13 +197,6 @@ static void	draw_col(t_context *c, int x, float dir[4])
 	}
 }
 
-static const unsigned char	g_arrows[4][8] = {
-	{0x18, 0x3C, 0x7E, 0x18, 0x18, 0x18, 0x18, 0x00},
-	{0x00, 0x04, 0x06, 0x7F, 0x7F, 0x06, 0x04, 0x00},
-	{0x00, 0x18, 0x18, 0x18, 0x18, 0x7E, 0x3C, 0x18},
-	{0x00, 0x20, 0x60, 0xFE, 0xFE, 0x60, 0x20, 0x00},
-};
-
 #define MM_RADIUS 8
 #define MM_SIZE 8
 #define MM_SZ ((MM_RADIUS * 2 + 1) * MM_SIZE)
@@ -221,15 +214,45 @@ static int	in_map(char **map, int x, int y)
 	return (x < (int)ft_strlen(map[y]));
 }
 
+/*
+** Rotates local pixel coords (0-7) for each cardinal direction.
+** NORTH=identity, EAST=90CW, SOUTH=180, WEST=270CW.
+*/
+static mlx_color	sample_rotated(t_context *c, int lx, int ly)
+{
+	int	rx;
+	int	ry;
+
+	if (c->player.direction == EAST)
+	{
+		rx = lx;
+		ry = ly;
+	}
+	else if (c->player.direction == NORTH)
+	{
+		rx = 7 - ly;
+		ry = lx;
+	}
+	else if (c->player.direction == WEST)
+	{
+		rx = 7 - lx;
+		ry = 7 - ly;
+	}
+	else
+	{
+		rx = ly;
+		ry = 7 - lx;
+	}
+	return (mlx_get_image_pixel(c->context, c->textures.player, rx, ry));
+}
+
 static mlx_color	mm_pixel(t_context *c, int x, int y)
 {
-	const int tx = x / MM_SIZE - MM_RADIUS;
-	const int ty = y / MM_SIZE - MM_RADIUS;
+	const int	tx = x / MM_SIZE - MM_RADIUS;
+	const int	ty = y / MM_SIZE - MM_RADIUS;
 
-	if (tx == 0 && ty == 0 && (g_arrows[c->player.direction][(y % MM_SIZE) * 8 / MM_SIZE] & (0x80 >> ((x % MM_SIZE) * 8 / MM_SIZE))))
-		return ((mlx_color){.rgba = 0xFF0000FF});
 	if (tx == 0 && ty == 0)
-		return ((mlx_color){.rgba = 0x333333FF});
+		return (sample_rotated(c, x % MM_SIZE, y % MM_SIZE));
 	if (c->map[c->player.z + ty][c->player.x + tx] == '1')
 		return ((mlx_color){.rgba = 0xFFFFFFFF});
 	return ((mlx_color){.rgba = 0x333333FF});
@@ -246,9 +269,11 @@ static void	draw_minimap(t_context *c)
 		x = -1;
 		while (++x < MM_SZ)
 		{
-			if (!in_map(c->map, c->player.x + (x / MM_SIZE - MM_RADIUS), c->player.z + (y / MM_SIZE - MM_RADIUS)))
-				continue;
-			mlx_set_image_pixel(c->context, c->textures.framebuffer,x, y, mm_pixel(c, x, y));
+			if (!in_map(c->map, c->player.x + (x / MM_SIZE - MM_RADIUS),
+					c->player.z + (y / MM_SIZE - MM_RADIUS)))
+				continue ;
+			mlx_set_image_pixel(c->context, c->textures.framebuffer,
+				x, y, mm_pixel(c, x, y));
 		}
 	}
 }
