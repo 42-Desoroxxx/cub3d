@@ -6,13 +6,10 @@
 /*   By: llage <llage@student.42angouleme.fr>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/19 20:55:35 by llage             #+#    #+#             */
-/*   Updated: 2026/01/19 20:55:35 by llage            ###   ########.fr       */
+/*   Updated: 2026/02/12 02:01:15 by llage            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <cub3d.h>
-
-/* hooks.c */
 #include <cub3d.h>
 #include <math.h>
 
@@ -132,6 +129,61 @@ static void	draw_col(t_context *c, int x, float dir[4])
 				(mlx_color){.rgba = 0x996633FF});
 	}
 }
+static const unsigned char	g_arrows[4][8] = {
+	{0x18, 0x3C, 0x7E, 0x18, 0x18, 0x18, 0x18, 0x00},
+	{0x00, 0x04, 0x06, 0x7F, 0x7F, 0x06, 0x04, 0x00},
+	{0x00, 0x18, 0x18, 0x18, 0x18, 0x7E, 0x3C, 0x18},
+	{0x00, 0x20, 0x60, 0xFE, 0xFE, 0x60, 0x20, 0x00},
+};
+
+#define MM_RADIUS 8
+#define MM_SIZE 8
+#define MM_SZ ((MM_RADIUS * 2 + 1) * MM_SIZE)
+
+static int	in_map(char **map, int x, int y)
+{
+	int	i;
+
+	if (y < 0 || x < 0)
+		return (0);
+	i = -1;
+	while (++i <= y)
+		if (!map[i])
+			return (0);
+	return (x < (int)ft_strlen(map[y]));
+}
+
+static mlx_color	mm_pixel(t_context *c, int x, int y)
+{
+	const int tx = x / MM_SIZE - MM_RADIUS;
+	const int ty = y / MM_SIZE - MM_RADIUS;
+
+	if (tx == 0 && ty == 0 && (g_arrows[c->player.direction][(y % MM_SIZE) * 8 / MM_SIZE] & (0x80 >> ((x % MM_SIZE) * 8 / MM_SIZE))))
+		return ((mlx_color){.rgba = 0xFF0000FF});
+	if (tx == 0 && ty == 0)
+		return ((mlx_color){.rgba = 0x333333FF});
+	if (c->map[c->player.z + ty][c->player.x + tx] == '1')
+		return ((mlx_color){.rgba = 0xFFFFFFFF});
+	return ((mlx_color){.rgba = 0x333333FF});
+}
+
+static void	draw_minimap(t_context *c)
+{
+	int	x;
+	int	y;
+
+	y = -1;
+	while (++y < MM_SZ)
+	{
+		x = -1;
+		while (++x < MM_SZ)
+		{
+			if (!in_map(c->map, c->player.x + (x / MM_SIZE - MM_RADIUS), c->player.z + (y / MM_SIZE - MM_RADIUS)))
+				continue;
+			mlx_set_image_pixel(c->context, c->textures.framebuffer,x, y, mm_pixel(c, x, y));
+		}
+	}
+}
 
 void	loop_hook(void *param)
 {
@@ -145,6 +197,7 @@ void	loop_hook(void *param)
 	x = -1;
 	while (++x < WINDOW_WIDTH)
 		draw_col(c, x, dir);
+	draw_minimap(c);
 	mlx_put_image_to_window(c->context, c->window,
 		c->textures.framebuffer, 0, 0);
 }
