@@ -24,37 +24,37 @@ static void	get_dir(t_direction d, float dir[4])
 	if (d == NORTH)
 	{
 		dir[1] = -1;
-		dir[2] = 0.66f;
+		dir[2] = 0.66F;
 	}
 	else if (d == SOUTH)
 	{
 		dir[1] = 1;
-		dir[2] = -0.66f;
+		dir[2] = -0.66F;
 	}
 	else if (d == EAST)
 	{
 		dir[0] = 1;
-		dir[3] = 0.66f;
+		dir[3] = 0.66F;
 	}
 	else
 	{
 		dir[0] = -1;
-		dir[3] = -0.66f;
+		dir[3] = -0.66F;
 	}
 }
 
-static mlx_image	get_tex(t_context *c, int side, float rx, float rz)
+static mlx_image	get_tex(t_context *context, int side, float rx, float rz)
 {
 	if (side == 0 && rx > 0)
-		return (c->textures.wall_east);
+		return (context->textures.wall_east);
 	if (side == 0)
-		return (c->textures.wall_west);
+		return (context->textures.wall_west);
 	if (rz > 0)
-		return (c->textures.wall_south);
-	return (c->textures.wall_north);
+		return (context->textures.wall_south);
+	return (context->textures.wall_north);
 }
 
-static void	cast_ray(t_context *c, float rx, float rz, float out[3])
+static void	cast_ray(t_context *context, float rx, float rz, float out[3])
 {
 	float	p[2];
 	int		m[2];
@@ -62,8 +62,8 @@ static void	cast_ray(t_context *c, float rx, float rz, float out[3])
 	float	sd[2];
 	int		s[2];
 
-	p[0] = c->player.x + 0.5f;
-	p[1] = c->player.z + 0.5f;
+	p[0] = context->player.x + 0.5f;
+	p[1] = context->player.z + 0.5f;
 	m[0] = (int)p[0];
 	m[1] = (int)p[1];
 	dd[0] = rx == 0 ? 1e30f : fabsf(1.0f / rx);
@@ -73,7 +73,7 @@ static void	cast_ray(t_context *c, float rx, float rz, float out[3])
 	sd[0] = rx < 0 ? (p[0] - m[0]) * dd[0] : (m[0] + 1.0f - p[0]) * dd[0];
 	sd[1] = rz < 0 ? (p[1] - m[1]) * dd[1] : (m[1] + 1.0f - p[1]) * dd[1];
 	out[2] = 0;
-	while (c->map[m[1]][m[0]] != '1')
+	while (context->map[m[1]][m[0]] != '1')
 	{
 		if (sd[0] < sd[1])
 		{
@@ -102,15 +102,15 @@ static void	cast_ray(t_context *c, float rx, float rz, float out[3])
 /*
 ** Tints RGB with warm orange (torch color) and dims by factor f.
 */
-static mlx_color	shade(mlx_color col, float f)
+static mlx_color	shade(mlx_color color, float f)
 {
 	unsigned int	r;
 	unsigned int	g;
 	unsigned int	b;
 
-	r = (unsigned int)fminf(((col.rgba >> 24) & 0xFF) * f * 1.1f, 255);
-	g = (unsigned int)fminf(((col.rgba >> 16) & 0xFF) * f * 0.9f, 255);
-	b = (unsigned int)fminf(((col.rgba >> 8) & 0xFF) * f * 0.7f, 255);
+	r = (unsigned int)fminf(((color.rgba >> 24) & 0xFF) * f * 1.1f, 255);
+	g = (unsigned int)fminf(((color.rgba >> 16) & 0xFF) * f * 0.9f, 255);
+	b = (unsigned int)fminf(((color.rgba >> 8) & 0xFF) * f * 0.7f, 255);
 	return ((mlx_color){.rgba = (r << 24) | (g << 16) | (b << 8) | 0xFF});
 }
 
@@ -123,9 +123,9 @@ static float	torch(int x, int y)
 	float	dx;
 	float	dy;
 
-	dx = (x - WINDOW_WIDTH / 2.0f) / (WINDOW_WIDTH / 2.0f);
-	dy = (y - WINDOW_HEIGHT / 2.0f) / (WINDOW_HEIGHT / 2.0f);
-	return (1.0f / (1.0f + (dx * dx + dy * dy) * 4.0f));
+	dx = (x - WINDOW_WIDTH / 2) / (WINDOW_WIDTH / 2);
+	dy = (y - WINDOW_HEIGHT / 2) / (WINDOW_HEIGHT / 2);
+	return (1 / (1 + (dx * dx + dy * dy) * 4));
 }
 
 /*
@@ -137,9 +137,9 @@ static float	torch_flat(int x, int y)
 	float	dx;
 	float	dy;
 
-	dx = (x - WINDOW_WIDTH / 2.0f) / (WINDOW_WIDTH / 2.0f);
-	dy = (y - (float)WINDOW_HEIGHT) / (float)WINDOW_HEIGHT;
-	return (1.0f / (1.0f + (dx * dx + dy * dy) * 4.0f));
+	dx = (x - WINDOW_WIDTH / 2) / (WINDOW_WIDTH / 2);
+	dy = (y - WINDOW_HEIGHT) / WINDOW_HEIGHT;
+	return (1 / (1 + (dx * dx + dy * dy) * 4));
 }
 
 
@@ -148,7 +148,7 @@ static float	torch_flat(int x, int y)
 */
 static float	fog(float dist)
 {
-	return (1.0f / (1.0f + dist * dist * 0.2f));
+	return (1 / (1 + dist * dist * 0.2));
 }
 
 /*
@@ -158,11 +158,11 @@ static float	flat_fog(int y)
 {
 	float	d;
 
-	d = fabsf(y - WINDOW_HEIGHT / 2.0f) / (WINDOW_HEIGHT / 2.0f);
+	d = fabsf((float) y - WINDOW_HEIGHT / 2) / (WINDOW_HEIGHT / 2);
 	return (0.05f + 0.95f * d);
 }
 
-static void	draw_col(t_context *c, int x, float dir[4])
+static void	draw_col(t_context *context, int x, float dir[4])
 {
 	float		out[3];
 	float		ray[2];
@@ -173,25 +173,25 @@ static void	draw_col(t_context *c, int x, float dir[4])
 
 	ray[0] = dir[0] + dir[2] * (2.0f * x / WINDOW_WIDTH - 1.0f);
 	ray[1] = dir[1] + dir[3] * (2.0f * x / WINDOW_WIDTH - 1.0f);
-	cast_ray(c, ray[0], ray[1], out);
+	cast_ray(context, ray[0], ray[1], out);
 	col[0] = (int)(WINDOW_HEIGHT / out[0]);
 	col[1] = (WINDOW_HEIGHT - col[0]) / 2;
 	col[2] = (int)(out[1] * TEX) % TEX;
-	tex = get_tex(c, (int)out[2], ray[0], ray[1]);
-	w = fog(out[0]) * (1.0f - 0.3f * (int)out[2]);
+	tex = get_tex(context, (int)out[2], ray[0], ray[1]);
+	w = fog(out[0]) * (1 - 0.3f * (int)out[2]);
 	y = -1;
 	while (++y < WINDOW_HEIGHT)
 	{
 		if (y >= col[1] && y < col[1] + col[0])
-			mlx_set_image_pixel(c->context, c->textures.framebuffer, x, y,
-				shade(mlx_get_image_pixel(c->context, tex, col[2],
+			mlx_set_image_pixel(context->context, context->textures.framebuffer, x, y,
+				shade(mlx_get_image_pixel(context->context, tex, col[2],
 					((y - col[1]) * TEX) / col[0]), torch(x, y) * w));
 		else if (y < WINDOW_HEIGHT / 2)
-			mlx_set_image_pixel(c->context, c->textures.framebuffer, x, y,
+			mlx_set_image_pixel(context->context, context->textures.framebuffer, x, y,
 				shade((mlx_color){.rgba = 0x6699CCFF},
 					torch_flat(x, y) * flat_fog(y)));
 		else
-			mlx_set_image_pixel(c->context, c->textures.framebuffer, x, y,
+			mlx_set_image_pixel(context->context, context->textures.framebuffer, x, y,
 				shade((mlx_color){.rgba = 0x996633FF},
 					torch_flat(x, y) * flat_fog(y)));
 	}
@@ -199,16 +199,16 @@ static void	draw_col(t_context *c, int x, float dir[4])
 
 void	loop_hook(void *param)
 {
-	t_context	*c;
+	t_context	*context;
 	float		dir[4];
 	int			x;
 
-	c = param;
-	mlx_clear_window(c->context, c->window, (mlx_color){.rgba = 0x000000FF});
-	get_dir(c->player.direction, dir);
+	context = param;
+	mlx_clear_window(context->context, context->window, (mlx_color){.rgba = 0x000000FF});
+	get_dir(context->player.direction, dir);
 	x = -1;
 	while (++x < WINDOW_WIDTH)
-		draw_col(c, x, dir);
-	mlx_put_image_to_window(c->context, c->window,
-		c->textures.framebuffer, 0, 0);
+		draw_col(context, x, dir);
+	mlx_put_image_to_window(context->context, context->window,
+		context->textures.framebuffer, 0, 0);
 }
