@@ -45,7 +45,6 @@ typedef struct s_textures
 	void	*wall_east;
 	void	*wall_south;
 	void	*wall_west;
-	void	*player;
 	void	*framebuffer;
 }	t_textures;
 

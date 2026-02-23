@@ -197,87 +197,6 @@ static void	draw_col(t_context *c, int x, float dir[4])
 	}
 }
 
-#define MM_RADIUS 8
-#define MM_SIZE 8
-#define MM_SZ ((MM_RADIUS * 2 + 1) * MM_SIZE)
-
-static int	in_map(char **map, int x, int y)
-{
-	int	i;
-
-	if (y < 0 || x < 0)
-		return (0);
-	i = -1;
-	while (++i <= y)
-		if (!map[i])
-			return (0);
-	return (x < (int)ft_strlen(map[y]));
-}
-
-/*
-** Rotates local pixel coords (0-7) for each cardinal direction.
-** NORTH=identity, EAST=90CW, SOUTH=180, WEST=270CW.
-*/
-static mlx_color	sample_rotated(t_context *c, int lx, int ly)
-{
-	int	rx;
-	int	ry;
-
-	if (c->player.direction == EAST)
-	{
-		rx = lx;
-		ry = ly;
-	}
-	else if (c->player.direction == NORTH)
-	{
-		rx = 7 - ly;
-		ry = lx;
-	}
-	else if (c->player.direction == WEST)
-	{
-		rx = 7 - lx;
-		ry = 7 - ly;
-	}
-	else
-	{
-		rx = ly;
-		ry = 7 - lx;
-	}
-	return (mlx_get_image_pixel(c->context, c->textures.player, rx, ry));
-}
-
-static mlx_color	mm_pixel(t_context *c, int x, int y)
-{
-	const int	tx = x / MM_SIZE - MM_RADIUS;
-	const int	ty = y / MM_SIZE - MM_RADIUS;
-
-	if (tx == 0 && ty == 0)
-		return (sample_rotated(c, x % MM_SIZE, y % MM_SIZE));
-	if (c->map[c->player.z + ty][c->player.x + tx] == '1')
-		return ((mlx_color){.rgba = 0xFFFFFFFF});
-	return ((mlx_color){.rgba = 0x333333FF});
-}
-
-static void	draw_minimap(t_context *c)
-{
-	int	x;
-	int	y;
-
-	y = -1;
-	while (++y < MM_SZ)
-	{
-		x = -1;
-		while (++x < MM_SZ)
-		{
-			if (!in_map(c->map, c->player.x + (x / MM_SIZE - MM_RADIUS),
-					c->player.z + (y / MM_SIZE - MM_RADIUS)))
-				continue ;
-			mlx_set_image_pixel(c->context, c->textures.framebuffer,
-				x, y, mm_pixel(c, x, y));
-		}
-	}
-}
-
 void	loop_hook(void *param)
 {
 	t_context	*c;
@@ -290,7 +209,6 @@ void	loop_hook(void *param)
 	x = -1;
 	while (++x < WINDOW_WIDTH)
 		draw_col(c, x, dir);
-	draw_minimap(c);
 	mlx_put_image_to_window(c->context, c->window,
 		c->textures.framebuffer, 0, 0);
 }
