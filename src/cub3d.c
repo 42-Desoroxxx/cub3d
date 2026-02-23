@@ -31,7 +31,8 @@ static void	create_textures(void)
 	g_context.textures.wall_south = create_texture("assets/wall_south.png");
 	g_context.textures.wall_west = create_texture("assets/wall_west.png");
 	g_context.textures.player = create_texture("assets/player.png");
-	g_context.textures.framebuffer = mlx_new_image(g_context.context, WINDOW_WIDTH, WINDOW_HEIGHT);
+	g_context.textures.framebuffer = mlx_new_image(g_context.context,
+			WINDOW_WIDTH, WINDOW_HEIGHT);
 	if (g_context.textures.framebuffer == NULL)
 		fatal_error("Unable to create screen texture");
 }
