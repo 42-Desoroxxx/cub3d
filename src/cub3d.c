@@ -50,6 +50,7 @@ static void	create_window(void)
 		fatal_error("Unable to create window");
 }
 
+// TODO: Render uncapped, only redraw the framebuffer on input
 int	main(int argc, const char *argv[])
 {
 	validate_args(argc, argv);
