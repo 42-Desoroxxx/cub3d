@@ -34,7 +34,7 @@ RESET = \033[0m
 COMPILER = cc
 BASE_FLAGS = \
 	-Wall -Wextra \
-	-std=c23 \
+	-std=c17 \
  	-Werror=vla -pedantic-errors -Werror=int-conversion -Werror=incompatible-pointer-types -Werror=implicit-function-declaration -Wstrict-prototypes -Wmissing-prototypes -Wmissing-declarations \
 	-MMD \
 	-flto=thin
@@ -65,27 +65,30 @@ SRCS := $(addprefix $(SRC)/,$(SRC_FILES))
 OBJS := $(patsubst $(SRC)/%.c,$(OBJ)/%.o,$(SRCS))
 DEPS := $(OBJS:.o=.d)
 
+COMPILER_VERSION := $(shell $(COMPILER) -v 2>&1 | grep -oP 'version \K\d+')
+ifeq ($(shell expr $(COMPILER_VERSION) \>= 15 2>/dev/null), 1)
+	BASE_FLAGS += -Wno-c23-extensions
+	DEBUG_FLAGS += -fstrict-flex-arrays=3
+	LDFLAGS += -fuse-ld=mold
+else
+	BASE_FLAGS += -Wno-fixed-enum-extension
+endif
+
 ifeq ($(MAKE_MODE),release)
 	CFLAGS = $(BASE_FLAGS) $(RELEASE_FLAGS)
-    LIB_TARGET = all
+	LIB_TARGET = all
 else
 	ifeq ($(MAKE_MODE),debug)
 		CFLAGS = $(BASE_FLAGS) $(DEBUG_FLAGS)
 		LIB_TARGET = debug
 	else
-	 ifeq ($(MAKE_MODE),sane)
-	 	CFLAGS = $(BASE_FLAGS) $(DEBUG_FLAGS) $(SANE_FLAGS)
-	 	LIB_TARGET = sane
-	 else
-		$(error Unknown mode)
+		ifeq ($(MAKE_MODE),sane)
+	 		CFLAGS = $(BASE_FLAGS) $(DEBUG_FLAGS) $(SANE_FLAGS)
+	 		LIB_TARGET = sane
+	 	else
+			$(error Unknown mode)
 		endif
 	endif
-endif
-
-COMPILER_VERSION := $(shell $(COMPILER) -v 2>&1 | grep -oP 'version \K\d+')
-ifeq ($(shell expr $(COMPILER_VERSION) \>= 15 2>/dev/null), 1)
-    DEBUG_FLAGS += -fstrict-flex-arrays=3
-    LDFLAGS += -fuse-ld=lld
 endif
 
 all:
