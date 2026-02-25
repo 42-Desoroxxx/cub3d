@@ -18,7 +18,7 @@ static void	validate_extension(const char *path)
 
 	if (extension == NULL)
 		fatal_error("Missing file extension, must be `.cub`");
-	if (ft_strncmp(extension, ".cub", 4) != 0)
+	if (ft_strncmp(extension, ".cub", 4) != 0 || extension[4] != '\0')
 		fatal_error("Invalid file extension, must be `.cub`");
 }
 
