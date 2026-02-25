@@ -14,6 +14,7 @@
 
 _Noreturn void	fatal_error(char *message)
 {
+	cleanup();
 	ft_fprintf(STDERR_FILENO, "Error\n%s\n", message);
 	exit(EXIT_FAILURE);
 }
@@ -21,13 +22,11 @@ _Noreturn void	fatal_error(char *message)
 _Noreturn void	fatal_error_fd(char *message, int fd)
 {
 	close(fd);
-	ft_fprintf(STDERR_FILENO, "Error\n%s\n", message);
-	exit(EXIT_FAILURE);
+	fatal_error(message);
 }
 
 _Noreturn void	fatal_error_map(char *message, char **map)
 {
 	free_map(map);
-	ft_fprintf(STDERR_FILENO, "Error\n%s\n", message);
-	exit(EXIT_FAILURE);
+	fatal_error(message);
 }

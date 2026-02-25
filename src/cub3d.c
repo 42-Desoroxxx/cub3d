@@ -58,23 +58,7 @@ static void	create_window(void)
 		fatal_error("Unable to create window");
 }
 
-int	main(int argc, const char *argv[])
-{
-	validate_args(argc, argv);
-	parse_map(open_map(argv), &g_context);
-	g_context.context = mlx_init();
-	if (g_context.context == NULL)
-		fatal_error("Unable to initialize mlx");
-	create_textures();
-	create_window();
-	setup_events(&g_context);
-	draw(&g_context);
-	mlx_add_loop_hook(g_context.context, loop_hook, &g_context);
-	mlx_loop(g_context.context);
-}
-
-__attribute__((destructor))
-static void	cleanup(void)
+void	cleanup(void)
 {
 	if (g_context.map != NULL)
 	{
@@ -121,4 +105,21 @@ static void	cleanup(void)
 		mlx_destroy_context(g_context.context);
 		g_context.context = NULL;
 	}
+}
+
+
+int	main(int argc, const char *argv[])
+{
+	validate_args(argc, argv);
+	parse_map(open_map(argv), &g_context);
+	g_context.context = mlx_init();
+	if (g_context.context == NULL)
+		fatal_error("Unable to initialize mlx");
+	create_textures();
+	create_window();
+	setup_events(&g_context);
+	draw(&g_context);
+	mlx_add_loop_hook(g_context.context, loop_hook, &g_context);
+	mlx_loop(g_context.context);
+	cleanup();
 }

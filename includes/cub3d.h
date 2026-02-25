@@ -106,6 +106,11 @@ validate_rectangle(char **map);
 void
 parse_map(int fd, t_context *context);
 
+// cub3d.c
+
+void
+cleanup(void);
+
 // events.c
 
 void
