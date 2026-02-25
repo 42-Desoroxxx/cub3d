@@ -183,32 +183,40 @@ static void	draw_col(t_context *context, int x, float dir[4])
 	while (++y < WINDOW_HEIGHT)
 	{
 		if (y >= col[1] && y < col[1] + col[0])
-			mlx_set_image_pixel(context->context, context->textures.framebuffer, x, y,
+			mlx_set_image_pixel(context->context, context->framebuffers.back, x, y,
 				shade(mlx_get_image_pixel(context->context, tex, col[2],
 					((y - col[1]) * TEX) / col[0]), torch(x, y) * w));
 		else if (y < WINDOW_HEIGHT / 2)
-			mlx_set_image_pixel(context->context, context->textures.framebuffer, x, y,
+			mlx_set_image_pixel(context->context, context->framebuffers.back, x, y,
 				shade((mlx_color){.rgba = 0x6699CCFF},
 					torch_flat(x, y) * flat_fog(y)));
 		else
-			mlx_set_image_pixel(context->context, context->textures.framebuffer, x, y,
+			mlx_set_image_pixel(context->context, context->framebuffers.back, x, y,
 				shade((mlx_color){.rgba = 0x996633FF},
 					torch_flat(x, y) * flat_fog(y)));
 	}
 }
 
-void	loop_hook(void *param)
+void	draw(t_context *context)
 {
-	t_context	*context;
-	float		dir[4];
-	int			x;
+	const mlx_image	old = context->framebuffers.front;
+	float			dir[4];
+	int				x;
 
-	context = param;
-	mlx_clear_window(context->context, context->window, (mlx_color){.rgba = 0x000000FF});
 	get_dir(context->player.direction, dir);
 	x = -1;
 	while (++x < WINDOW_WIDTH)
 		draw_col(context, x, dir);
+	context->framebuffers.front = context->framebuffers.back;
+	context->framebuffers.back = old;
+}
+
+void	loop_hook(void *param)
+{
+	t_context	*context;
+
+	context = param;
+	mlx_clear_window(context->context, context->window, (mlx_color){.rgba = 0x000000FF});
 	mlx_put_image_to_window(context->context, context->window,
-		context->textures.framebuffer, 0, 0);
+		context->framebuffers.front, 0, 0);
 }

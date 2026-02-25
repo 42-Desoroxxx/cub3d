@@ -39,13 +39,18 @@ typedef struct s_player
 	t_direction		direction;
 }	t_player;
 
+typedef struct s_framebuffers
+{
+	mlx_image	back;
+	mlx_image	front;
+}	t_framebuffers;
+
 typedef struct s_textures
 {
-	void	*wall_north;
-	void	*wall_east;
-	void	*wall_south;
-	void	*wall_west;
-	void	*framebuffer;
+	mlx_image	wall_north;
+	mlx_image	wall_east;
+	mlx_image	wall_south;
+	mlx_image	wall_west;
 }	t_textures;
 
 typedef struct s_context
@@ -53,6 +58,7 @@ typedef struct s_context
 	mlx_context				context;
 	mlx_window				window;
 	t_player				player;
+	t_framebuffers			framebuffers;
 	t_textures				textures;
 	char					**map;
 }	t_context;
@@ -106,6 +112,9 @@ void
 setup_events(t_context *context);
 
 // hooks.c
+
+void
+draw(t_context *context);
 
 void
 loop_hook(void *param);

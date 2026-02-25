@@ -78,6 +78,7 @@ static void	on_window_event(const int event, void *param)
 		mlx_loop_end(*((mlx_context *) param));
 }
 
+// TODO: Only draw if something really changed instead of every input
 static void	on_key_down_event(const int key, void *param)
 {
 	t_context	*context;
@@ -115,6 +116,7 @@ static void	on_key_down_event(const int key, void *param)
 		else if (context->player.direction == WEST)
 			context->player.direction = NORTH;
 	}
+	draw(context);
 }
 
 void	setup_events(t_context *context)
