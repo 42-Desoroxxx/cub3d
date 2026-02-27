@@ -14,14 +14,15 @@
 
 static t_context	g_context = {0};
 
-static mlx_image	create_texture(char *path)
+static t_wall_texture	create_texture(char *path)
 {
-	const mlx_image	texture = mlx_new_image_from_file(g_context.context, path,
-			NULL, NULL);
+	t_wall_texture	tex;
 
-	if (texture == NULL)
+	tex.image = mlx_new_image_from_file(g_context.context, path,
+			&tex.width, &tex.height);
+	if (tex.image == NULL)
 		fatal_error("Unable to create texture");
-	return (texture);
+	return (tex);
 }
 
 static mlx_image	create_framebuffer(void)
@@ -36,10 +37,10 @@ static mlx_image	create_framebuffer(void)
 
 static void	create_textures(void)
 {
-	g_context.textures.wall_north = create_texture("assets/wall_north.png");
-	g_context.textures.wall_east = create_texture("assets/wall_east.png");
-	g_context.textures.wall_south = create_texture("assets/wall_south.png");
-	g_context.textures.wall_west = create_texture("assets/wall_west.png");
+	g_context.textures.wall_north = create_texture(g_context.scene.path_north);
+	g_context.textures.wall_east = create_texture(g_context.scene.path_east);
+	g_context.textures.wall_south = create_texture(g_context.scene.path_south);
+	g_context.textures.wall_west = create_texture(g_context.scene.path_west);
 	g_context.framebuffers.back = create_framebuffer();
 	g_context.framebuffers.front = create_framebuffer();
 }
@@ -60,30 +61,38 @@ static void	create_window(void)
 
 void	cleanup(void)
 {
+	free(g_context.scene.path_north);
+	free(g_context.scene.path_south);
+	free(g_context.scene.path_east);
+	free(g_context.scene.path_west);
 	if (g_context.map != NULL)
 	{
 		free_map(g_context.map);
 		g_context.map = NULL;
 	}
-	if (g_context.textures.wall_north != NULL)
+	if (g_context.textures.wall_north.image != NULL)
 	{
-		mlx_destroy_image(g_context.context, g_context.textures.wall_north);
-		g_context.textures.wall_north = NULL;
+		mlx_destroy_image(g_context.context,
+			g_context.textures.wall_north.image);
+		g_context.textures.wall_north.image = NULL;
 	}
-	if (g_context.textures.wall_east != NULL)
+	if (g_context.textures.wall_east.image != NULL)
 	{
-		mlx_destroy_image(g_context.context, g_context.textures.wall_east);
-		g_context.textures.wall_east = NULL;
+		mlx_destroy_image(g_context.context,
+			g_context.textures.wall_east.image);
+		g_context.textures.wall_east.image = NULL;
 	}
-	if (g_context.textures.wall_south != NULL)
+	if (g_context.textures.wall_south.image != NULL)
 	{
-		mlx_destroy_image(g_context.context, g_context.textures.wall_south);
-		g_context.textures.wall_south = NULL;
+		mlx_destroy_image(g_context.context,
+			g_context.textures.wall_south.image);
+		g_context.textures.wall_south.image = NULL;
 	}
-	if (g_context.textures.wall_west != NULL)
+	if (g_context.textures.wall_west.image != NULL)
 	{
-		mlx_destroy_image(g_context.context, g_context.textures.wall_west);
-		g_context.textures.wall_west = NULL;
+		mlx_destroy_image(g_context.context,
+			g_context.textures.wall_west.image);
+		g_context.textures.wall_west.image = NULL;
 	}
 	if (g_context.framebuffers.back != NULL)
 	{
@@ -106,7 +115,6 @@ void	cleanup(void)
 		g_context.context = NULL;
 	}
 }
-
 
 int	main(int argc, const char *argv[])
 {

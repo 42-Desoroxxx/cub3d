@@ -45,13 +45,30 @@ typedef struct s_framebuffers
 	mlx_image	front;
 }	t_framebuffers;
 
+typedef struct s_wall_texture
+{
+	mlx_image	image;
+	int			width;
+	int			height;
+}	t_wall_texture;
+
 typedef struct s_textures
 {
-	mlx_image	wall_north;
-	mlx_image	wall_east;
-	mlx_image	wall_south;
-	mlx_image	wall_west;
+	t_wall_texture	wall_north;
+	t_wall_texture	wall_east;
+	t_wall_texture	wall_south;
+	t_wall_texture	wall_west;
 }	t_textures;
+
+typedef struct s_scene
+{
+	char		*path_north;
+	char		*path_south;
+	char		*path_east;
+	char		*path_west;
+	uint32_t	ceiling_color;
+	uint32_t	floor_color;
+}	t_scene;
 
 typedef struct s_context
 {
@@ -60,6 +77,7 @@ typedef struct s_context
 	t_player				player;
 	t_framebuffers			framebuffers;
 	t_textures				textures;
+	t_scene					scene;
 	char					**map;
 }	t_context;
 
@@ -102,6 +120,9 @@ void
 validate_rectangle(char **map);
 
 // Parsing
+
+void
+parse_scene(int fd, t_scene *scene);
 
 void
 parse_map(int fd, t_context *context);

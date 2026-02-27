@@ -13,8 +13,6 @@
 #include <cub3d.h>
 #include <math.h>
 
-#define TEX 64
-
 static void	get_dir(t_direction d, float dir[4])
 {
 	dir[0] = 0;
@@ -43,15 +41,15 @@ static void	get_dir(t_direction d, float dir[4])
 	}
 }
 
-static mlx_image	get_tex(t_context *context, int side, float rx, float rz)
+static t_wall_texture	*get_tex(t_context *ctx, int side, float rx, float rz)
 {
 	if (side == 0 && rx > 0)
-		return (context->textures.wall_east);
+		return (&ctx->textures.wall_east);
 	if (side == 0)
-		return (context->textures.wall_west);
+		return (&ctx->textures.wall_west);
 	if (rz > 0)
-		return (context->textures.wall_south);
-	return (context->textures.wall_north);
+		return (&ctx->textures.wall_south);
+	return (&ctx->textures.wall_north);
 }
 
 static void	cast_ray(t_context *context, float rx, float rz, float out[3])
@@ -99,9 +97,6 @@ static void	cast_ray(t_context *context, float rx, float rz, float out[3])
 	out[1] -= floorf(out[1]);
 }
 
-/*
-** Tints RGB with warm orange (torch color) and dims by factor f.
-*/
 static mlx_color	shade(mlx_color color, float f)
 {
 	unsigned int	r;
@@ -114,10 +109,6 @@ static mlx_color	shade(mlx_color color, float f)
 	return ((mlx_color){.rgba = (r << 24) | (g << 16) | (b << 8) | 0xFF});
 }
 
-/*
-** Radial vignette: 1.0 at screen center, fades to ~0.3 in corners.
-** Simulates a cone of light from the player's torch.
-*/
 static float	torch(int x, int y)
 {
 	float	dx;
@@ -128,10 +119,6 @@ static float	torch(int x, int y)
 	return (1 / (1 + (dx * dx + dy * dy) * 4));
 }
 
-/*
-** Same as torch but light originates from bottom-center (player's position).
-** Creates a semicircle on the floor, ceiling stays mostly dark.
-*/
 static float	torch_flat(int x, int y)
 {
 	float	dx;
@@ -142,18 +129,11 @@ static float	torch_flat(int x, int y)
 	return (1 / (1 + (dx * dx + dy * dy) * 4));
 }
 
-
-/*
-** Walls darken with distance squared.
-*/
 static float	fog(float dist)
 {
 	return (1 / (1 + dist * dist * 0.2));
 }
 
-/*
-** Ceiling/floor: horizon is far (dark), top/bottom edges are near (bright).
-*/
 static float	flat_fog(int y)
 {
 	float	d;
@@ -164,35 +144,36 @@ static float	flat_fog(int y)
 
 static void	draw_col(t_context *context, int x, float dir[4])
 {
-	float		out[3];
-	float		ray[2];
-	mlx_image	tex;
-	int			col[3];
-	int			y;
-	float		w;
+	float			out[3];
+	float			ray[2];
+	t_wall_texture	*tex;
+	int				col[3];
+	int				y;
+	float			w;
 
 	ray[0] = dir[0] + dir[2] * (2.0f * x / WINDOW_WIDTH - 1.0f);
 	ray[1] = dir[1] + dir[3] * (2.0f * x / WINDOW_WIDTH - 1.0f);
 	cast_ray(context, ray[0], ray[1], out);
 	col[0] = (int)(WINDOW_HEIGHT / out[0]);
 	col[1] = (WINDOW_HEIGHT - col[0]) / 2;
-	col[2] = (int)(out[1] * TEX) % TEX;
 	tex = get_tex(context, (int)out[2], ray[0], ray[1]);
+	col[2] = (int)(out[1] * tex->width) % tex->width;
 	w = fog(out[0]) * (1 - 0.3f * (int)out[2]);
 	y = -1;
 	while (++y < WINDOW_HEIGHT)
 	{
 		if (y >= col[1] && y < col[1] + col[0])
-			mlx_set_image_pixel(context->context, context->framebuffers.back, x, y,
-				shade(mlx_get_image_pixel(context->context, tex, col[2],
-					((y - col[1]) * TEX) / col[0]), torch(x, y) * w));
+			mlx_set_image_pixel(context->context, context->framebuffers.back,
+				x, y, shade(mlx_get_image_pixel(context->context, tex->image,
+						col[2], ((y - col[1]) * tex->height) / col[0]),
+					torch(x, y) * w));
 		else if (y < WINDOW_HEIGHT / 2)
-			mlx_set_image_pixel(context->context, context->framebuffers.back, x, y,
-				shade((mlx_color){.rgba = 0x6699CCFF},
+			mlx_set_image_pixel(context->context, context->framebuffers.back,
+				x, y, shade((mlx_color){.rgba = context->scene.ceiling_color},
 					torch_flat(x, y) * flat_fog(y)));
 		else
-			mlx_set_image_pixel(context->context, context->framebuffers.back, x, y,
-				shade((mlx_color){.rgba = 0x996633FF},
+			mlx_set_image_pixel(context->context, context->framebuffers.back,
+				x, y, shade((mlx_color){.rgba = context->scene.floor_color},
 					torch_flat(x, y) * flat_fog(y)));
 	}
 }
@@ -216,7 +197,8 @@ void	loop_hook(void *param)
 	t_context	*context;
 
 	context = param;
-	mlx_clear_window(context->context, context->window, (mlx_color){.rgba = 0x000000FF});
+	mlx_clear_window(context->context, context->window,
+		(mlx_color){.rgba = 0x000000FF});
 	mlx_put_image_to_window(context->context, context->window,
 		context->framebuffers.front, 0, 0);
 }

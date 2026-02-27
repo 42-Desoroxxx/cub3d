@@ -105,10 +105,10 @@ static t_player	get_player(char **map)
 
 void	parse_map(const int fd, t_context *context)
 {
+	parse_scene(fd, &context->scene);
 	context->map = read_map(fd);
 	close(fd);
 	validate_chars(context->map);
-	validate_rectangle(context->map);
 	context->player = get_player(context->map);
 	validate_via_flood(context);
 }

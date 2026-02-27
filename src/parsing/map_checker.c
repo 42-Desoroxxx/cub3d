@@ -39,7 +39,7 @@ void	validate_chars(char **map)
 		while (map[i][j])
 		{
 			c = map[i][j];
-			if (c != '0' && c != '1' && ft_strchr("NESW", c) == NULL)
+			if (c != '0' && c != '1' && c != ' ' && ft_strchr("NESW", c) == NULL)
 				fatal_error("Invalid character in map");
 			count_char(c);
 			j++;
@@ -47,31 +47,4 @@ void	validate_chars(char **map)
 		i++;
 	}
 	count_char('F');
-}
-
-void	validate_rectangle(char **map)
-{
-	const size_t	length = ft_strlen(map[0]);
-	int				i;
-	int				j;
-
-	i = 0;
-	while (map[i])
-	{
-		if (ft_strlen(map[i]) != length)
-			fatal_error("Map is not a rectangle");
-		j = 0;
-		if (i == 0 || map[i + 1] == NULL)
-		{
-			while (map[i][j])
-			{
-				if (map[i][j] != '1')
-					fatal_error("Map outer layer is not fully walls");
-				j++;
-			}
-		}
-		else if (map[i][get_width(map) - 1] != '1' || map[i][0] != '1')
-			fatal_error("Map outer layer is not fully walls");
-		i++;
-	}
 }

@@ -68,19 +68,27 @@ static void	validate_everything(char **map, char **flooded_map)
 {
 	int	x;
 	int	z;
+	int	len;
 
-	z = 0;
-	while (z < get_length(flooded_map))
+	z = -1;
+	while (++z < get_length(map))
 	{
-		x = 0;
-		while (x < get_width(flooded_map))
+		len = (int)ft_strlen(map[z]);
+		x = -1;
+		while (++x < len)
 		{
-			if (flooded_map[z][x] == 'P' && (z == 0 || z == get_length(map) - 1
-				|| x == 0 || x == get_width(map) - 1))
+			if (map[z][x] == '1' || map[z][x] == ' ')
+				continue ;
+			if (z == 0 || z == get_length(map) - 1
+				|| x == 0 || x == len - 1)
 				fatal_error_map("Map is not closed", flooded_map);
-			x++;
+			if (x >= (int)ft_strlen(map[z - 1]) || map[z - 1][x] == ' ')
+				fatal_error_map("Map is not closed", flooded_map);
+			if (x >= (int)ft_strlen(map[z + 1]) || map[z + 1][x] == ' ')
+				fatal_error_map("Map is not closed", flooded_map);
+			if (map[z][x - 1] == ' ' || map[z][x + 1] == ' ')
+				fatal_error_map("Map is not closed", flooded_map);
 		}
-		z++;
 	}
 }
 

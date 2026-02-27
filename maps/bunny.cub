@@ -1,3 +1,11 @@
+NO ./assets/wall_north.png
+SO ./assets/wall_south.png
+WE ./assets/wall_west.png
+EA ./assets/wall_east.png
+
+F 96,51,22
+C 102,153,204
+
 1111111111111111
 1000000000000001
 1000000000000001
