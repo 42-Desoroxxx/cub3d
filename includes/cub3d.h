@@ -81,6 +81,24 @@ typedef struct s_context
 	char					**map;
 }	t_context;
 
+typedef struct s_ray
+{
+	float	player_pos[2];
+	int		map_pos[2];
+	float	delta_dist[2];
+	float	side_dist[2];
+	int		step[2];
+}	t_ray;
+
+typedef struct s_column
+{
+	int			wall_height;
+	int			wall_start;
+	int			tex_col_x;
+	float		brightness;
+	t_texture	*texture;
+}	t_column;
+
 // Utils
 
 _Noreturn void
@@ -124,6 +142,37 @@ parse_scene(int fd, t_scene *scene);
 void
 parse_map(int fd, t_context *context);
 
+// ---–––———–––--- Rendering ---–––———–––--- \\
+
+// draw.c
+
+void
+draw_column(t_context *ctx, int x, float direction[4]);
+
+// raycast.c
+
+void
+cast_ray(t_context *context, float ray_x, float ray_z, float out[3]);
+
+// shading.c
+
+mlx_color
+shade(mlx_color color, float f);
+
+float
+torch(int x, int y);
+
+float
+torch_flat(int x, int y);
+
+float
+fog(float dist);
+
+float
+flat_fog(int y);
+
+// ---–––———–––--- Utils ---–––———–––--- \\
+
 // create_utils.c
 
 void
@@ -139,6 +188,8 @@ free_map(char **map);
 
 void
 free_resource(void **ptr, void (*destructor)(void *));
+
+// ---–––———–––---–––———–––---–––———–––--- \\
 
 // cub3d.c
 

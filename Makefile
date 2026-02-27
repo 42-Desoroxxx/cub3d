@@ -60,6 +60,7 @@ INCLUDES = -Iincludes $(foreach lib,$(LIB_DIRS),-isystem $(lib)/includes) $(shel
 SRC_FILES := \
 	cub3d.c events.c hooks.c \
 	parsing/map_checker.c parsing/map_flood.c parsing/map_parser.c parsing/scene_parser.c \
+	rendering/draw.c rendering/raycast.c rendering/shading.c \
 	utils/create_utils.c utils/error_utils.c utils/free_utils.c utils/map_utils.c utils/parsing_utils.c
 SRCS := $(addprefix $(SRC)/,$(SRC_FILES))
 OBJS := $(patsubst $(SRC)/%.c,$(OBJ)/%.o,$(SRCS))
