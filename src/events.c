@@ -12,64 +12,59 @@
 
 #include <cub3d.h>
 
-static void	move_player_sideways(t_context *context, bool left)
+static void	move_player(t_context *context, bool sideways, bool positive)
 {
-	const t_direction	direction = context->player.direction;
+	static const int	dx[2][4] = {{0, 1, 0, -1}, {-1, 0, 1, 0}};
+	static const int	dz[2][4] = {{-1, 0, 1, 0}, {0, -1, 0, 1}};
+	int					sign;
 	int					x;
 	int					z;
 
-	x = context->player.x;
-	z = context->player.z;
-	if (direction == NORTH && left)
-		x--;
-	else if (direction == NORTH)
-		x++;
-	else if (direction == EAST && left)
-		z--;
-	else if (direction == EAST)
-		z++;
-	else if (direction == SOUTH && left)
-		x++;
-	else if (direction == SOUTH)
-		x--;
-	else if (direction == WEST && left)
-		z++;
-	else if (direction == WEST)
-		z--;
+	sign = -1;
+	if (positive)
+		sign = 1;
+	x = context->player.x + sign * dx[sideways][context->player.direction];
+	z = context->player.z + sign * dz[sideways][context->player.direction];
 	if (context->map[z][x] == '1')
 		return ;
 	context->player.x = x;
 	context->player.z = z;
 }
 
-static void	move_player(t_context *context, bool forward)
+static void	rotate_player(t_context *context, bool right)
 {
-	const t_direction	direction = context->player.direction;
-	int					x;
-	int					z;
+	if (right)
+		context->player.direction = (context->player.direction + 1) % 4;
+	else
+		context->player.direction = (context->player.direction + 3) % 4;
+}
 
-	x = context->player.x;
-	z = context->player.z;
-	if (direction == NORTH && forward)
-		z--;
-	else if (direction == NORTH)
-		z++;
-	else if (direction == EAST && forward)
-		x++;
-	else if (direction == EAST)
-		x--;
-	else if (direction == SOUTH && forward)
-		z++;
-	else if (direction == SOUTH)
-		z--;
-	else if (direction == WEST && forward)
-		x--;
-	else if (direction == WEST)
-		x++;
-	if (context->map[z][x] == '1')
-		return ;
-	context->player.x = x;
-	context->player.z = z;
+static void	on_key_down_event(const int key, void *param)
+{
+	t_context	*context;
+	t_player	before;
+	bool		changed;
+
+	context = param;
+	before = context->player;
+	if (key == SDL_SCANCODE_ESCAPE)
+		mlx_loop_end(context->context);
+	else if (key == SDL_SCANCODE_W)
+		move_player(context, false, true);
+	else if (key == SDL_SCANCODE_A)
+		move_player(context, true, true);
+	else if (key == SDL_SCANCODE_S)
+		move_player(context, false, false);
+	else if (key == SDL_SCANCODE_D)
+		move_player(context, true, false);
+	else if (key == SDL_SCANCODE_LEFT)
+		rotate_player(context, false);
+	else if (key == SDL_SCANCODE_RIGHT)
+		rotate_player(context, true);
+	changed = context->player.x != before.x || context->player.z != before.z
+		|| context->player.direction != before.direction;
+	if (changed)
+		draw(context);
 }
 
 static void	on_window_event(const int event, void *param)
@@ -78,51 +73,10 @@ static void	on_window_event(const int event, void *param)
 		mlx_loop_end(*((mlx_context *) param));
 }
 
-// TODO: Only draw if something really changed instead of every input
-static void	on_key_down_event(const int key, void *param)
-{
-	t_context	*context;
-
-	context = param;
-	if (key == SDL_SCANCODE_ESCAPE)
-		mlx_loop_end(context->context);
-	else if (key == SDL_SCANCODE_W)
-		move_player(context, true);
-	else if (key == SDL_SCANCODE_A)
-		move_player_sideways(context, true);
-	else if (key == SDL_SCANCODE_S)
-		move_player(context, false);
-	else if (key == SDL_SCANCODE_D)
-		move_player_sideways(context, false);
-	else if (key == SDL_SCANCODE_LEFT)
-	{
-		if (context->player.direction == NORTH)
-			context->player.direction = WEST;
-		else if (context->player.direction == EAST)
-			context->player.direction = NORTH;
-		else if (context->player.direction == SOUTH)
-			context->player.direction = EAST;
-		else if (context->player.direction == WEST)
-			context->player.direction = SOUTH;
-	}
-	else if (key == SDL_SCANCODE_RIGHT)
-	{
-		if (context->player.direction == NORTH)
-			context->player.direction = EAST;
-		else if (context->player.direction == EAST)
-			context->player.direction = SOUTH;
-		else if (context->player.direction == SOUTH)
-			context->player.direction = WEST;
-		else if (context->player.direction == WEST)
-			context->player.direction = NORTH;
-	}
-	draw(context);
-}
-
 void	setup_events(t_context *context)
 {
 	mlx_on_event(context->context, context->window,
-		MLX_WINDOW_EVENT, on_window_event, &context->context);
-	mlx_on_event(context->context, context->window,
 		MLX_KEYDOWN, on_key_down_event, context);
+	mlx_on_event(context->context, context->window,
+		MLX_WINDOW_EVENT, on_window_event, &context->context);
 }

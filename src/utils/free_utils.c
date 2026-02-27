@@ -24,3 +24,11 @@ void	free_map(char **map)
 	}
 	free(map);
 }
+
+void	free_resource(void **ptr, void (*destructor)(void *))
+{
+	if (!ptr || !*ptr)
+		return ;
+	destructor(*ptr);
+	*ptr = NULL;
+}

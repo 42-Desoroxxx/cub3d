@@ -41,7 +41,7 @@ static void	get_dir(t_direction d, float dir[4])
 	}
 }
 
-static t_wall_texture	*get_tex(t_context *ctx, int side, float rx, float rz)
+static t_texture	*get_tex(t_context *ctx, int side, float rx, float rz)
 {
 	if (side == 0 && rx > 0)
 		return (&ctx->textures.wall_east);
@@ -146,7 +146,7 @@ static void	draw_col(t_context *context, int x, float dir[4])
 {
 	float			out[3];
 	float			ray[2];
-	t_wall_texture	*tex;
+	t_texture	*tex;
 	int				col[3];
 	int				y;
 	float			w;

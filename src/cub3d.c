@@ -14,49 +14,30 @@
 
 static t_context	g_context = {0};
 
-static t_wall_texture	create_texture(char *path)
+int	main(int argc, const char *argv[])
 {
-	t_wall_texture	tex;
-
-	tex.image = mlx_new_image_from_file(g_context.context, path,
-			&tex.width, &tex.height);
-	if (tex.image == NULL)
-		fatal_error("Unable to create texture");
-	return (tex);
+	validate_args(argc, argv);
+	parse_map(open_map(argv), &g_context);
+	g_context.context = mlx_init();
+	if (g_context.context == NULL)
+		fatal_error("Unable to initialize mlx");
+	create_textures(&g_context);
+	create_window(&g_context);
+	setup_events(&g_context);
+	draw(&g_context);
+	mlx_add_loop_hook(g_context.context, loop_hook, &g_context);
+	mlx_loop(g_context.context);
+	cleanup();
 }
 
-static mlx_image	create_framebuffer(void)
+static void	destroy_image(void *image)
 {
-	const mlx_image	framebuffer = mlx_new_image(g_context.context, WINDOW_WIDTH,
-			WINDOW_HEIGHT);
-
-	if (framebuffer == NULL)
-		fatal_error("Unable to create framebuffer");
-	return (framebuffer);
+	mlx_destroy_image(g_context.context, image);
 }
 
-static void	create_textures(void)
+static void	destroy_window(void *window)
 {
-	g_context.textures.wall_north = create_texture(g_context.scene.path_north);
-	g_context.textures.wall_east = create_texture(g_context.scene.path_east);
-	g_context.textures.wall_south = create_texture(g_context.scene.path_south);
-	g_context.textures.wall_west = create_texture(g_context.scene.path_west);
-	g_context.framebuffers.back = create_framebuffer();
-	g_context.framebuffers.front = create_framebuffer();
-}
-
-static void	create_window(void)
-{
-	mlx_window_create_info	window_info;
-
-	ft_bzero(&window_info, sizeof(mlx_window_create_info));
-	window_info.title = "cub3d";
-	window_info.width = WINDOW_WIDTH;
-	window_info.height = WINDOW_HEIGHT;
-	window_info.is_resizable = false;
-	g_context.window = mlx_new_window(g_context.context, &window_info);
-	if (g_context.window == NULL)
-		fatal_error("Unable to create window");
+	mlx_destroy_window(g_context.context, window);
 }
 
 void	cleanup(void)
@@ -65,69 +46,14 @@ void	cleanup(void)
 	free(g_context.scene.path_south);
 	free(g_context.scene.path_east);
 	free(g_context.scene.path_west);
-	if (g_context.map != NULL)
-	{
-		free_map(g_context.map);
-		g_context.map = NULL;
-	}
-	if (g_context.textures.wall_north.image != NULL)
-	{
-		mlx_destroy_image(g_context.context,
-			g_context.textures.wall_north.image);
-		g_context.textures.wall_north.image = NULL;
-	}
-	if (g_context.textures.wall_east.image != NULL)
-	{
-		mlx_destroy_image(g_context.context,
-			g_context.textures.wall_east.image);
-		g_context.textures.wall_east.image = NULL;
-	}
-	if (g_context.textures.wall_south.image != NULL)
-	{
-		mlx_destroy_image(g_context.context,
-			g_context.textures.wall_south.image);
-		g_context.textures.wall_south.image = NULL;
-	}
-	if (g_context.textures.wall_west.image != NULL)
-	{
-		mlx_destroy_image(g_context.context,
-			g_context.textures.wall_west.image);
-		g_context.textures.wall_west.image = NULL;
-	}
-	if (g_context.framebuffers.back != NULL)
-	{
-		mlx_destroy_image(g_context.context, g_context.framebuffers.back);
-		g_context.framebuffers.back = NULL;
-	}
-	if (g_context.framebuffers.front != NULL)
-	{
-		mlx_destroy_image(g_context.context, g_context.framebuffers.front);
-		g_context.framebuffers.front = NULL;
-	}
-	if (g_context.window != NULL)
-	{
-		mlx_destroy_window(g_context.context, g_context.window);
-		g_context.window = NULL;
-	}
-	if (g_context.context != NULL)
-	{
-		mlx_destroy_context(g_context.context);
-		g_context.context = NULL;
-	}
-}
-
-int	main(int argc, const char *argv[])
-{
-	validate_args(argc, argv);
-	parse_map(open_map(argv), &g_context);
-	g_context.context = mlx_init();
-	if (g_context.context == NULL)
-		fatal_error("Unable to initialize mlx");
-	create_textures();
-	create_window();
-	setup_events(&g_context);
-	draw(&g_context);
-	mlx_add_loop_hook(g_context.context, loop_hook, &g_context);
-	mlx_loop(g_context.context);
-	cleanup();
+	free_resource((void **)&g_context.textures.wall_north.image, destroy_image);
+	free_resource((void **)&g_context.textures.wall_east.image, destroy_image);
+	free_resource((void **)&g_context.textures.wall_south.image, destroy_image);
+	free_resource((void **)&g_context.textures.wall_west.image, destroy_image);
+	free_resource((void **)&g_context.map, (void (*)(void *))free_map);
+	free_resource((void **)&g_context.framebuffers.back, destroy_image);
+	free_resource((void **)&g_context.framebuffers.front, destroy_image);
+	free_resource((void **)&g_context.window, destroy_window);
+	free_resource((void **)&g_context.context,
+		(void (*)(void *))mlx_destroy_context);
 }

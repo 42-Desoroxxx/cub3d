@@ -45,19 +45,19 @@ typedef struct s_framebuffers
 	mlx_image	front;
 }	t_framebuffers;
 
-typedef struct s_wall_texture
+typedef struct s_texture
 {
 	mlx_image	image;
 	int			width;
 	int			height;
-}	t_wall_texture;
+}	t_texture;
 
 typedef struct s_textures
 {
-	t_wall_texture	wall_north;
-	t_wall_texture	wall_east;
-	t_wall_texture	wall_south;
-	t_wall_texture	wall_west;
+	t_texture	wall_north;
+	t_texture	wall_east;
+	t_texture	wall_south;
+	t_texture	wall_west;
 }	t_textures;
 
 typedef struct s_scene
@@ -98,9 +98,6 @@ validate_args(int argc, const char *argv[]);
 int
 open_map(const char *argv[]);
 
-void
-free_map(char **map);
-
 int
 get_width(char **map);
 
@@ -126,6 +123,22 @@ parse_scene(int fd, t_scene *scene);
 
 void
 parse_map(int fd, t_context *context);
+
+// create_utils.c
+
+void
+create_window(t_context *context);
+
+void
+create_textures(t_context *context);
+
+// free_utils.c
+
+void
+free_map(char **map);
+
+void
+free_resource(void **ptr, void (*destructor)(void *));
 
 // cub3d.c
 

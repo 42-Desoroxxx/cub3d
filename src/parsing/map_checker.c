@@ -39,7 +39,8 @@ void	validate_chars(char **map)
 		while (map[i][j])
 		{
 			c = map[i][j];
-			if (c != '0' && c != '1' && c != ' ' && ft_strchr("NESW", c) == NULL)
+			if (c != '0' && c != '1' && c != ' '
+				&& ft_strchr("NESW", c) == NULL)
 				fatal_error("Invalid character in map");
 			count_char(c);
 			j++;
