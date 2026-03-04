@@ -33,6 +33,7 @@ RESET = \033[0m
 # Compiler
 COMPILER = cc
 BASE_FLAGS = \
+	-lm -Wno-unused-command-line-argument \
 	-Wall -Wextra \
 	-std=c17 \
  	-Werror=vla -pedantic-errors -Werror=int-conversion -Werror=incompatible-pointer-types -Werror=implicit-function-declaration -Wstrict-prototypes -Wmissing-prototypes -Wmissing-declarations \
