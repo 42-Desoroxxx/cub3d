@@ -70,7 +70,7 @@ COMPILER_VERSION := $(shell $(COMPILER) -v 2>&1 | grep -oP 'version \K\d+')
 ifeq ($(shell expr $(COMPILER_VERSION) \>= 15 2>/dev/null), 1)
 	BASE_FLAGS += -Wno-c23-extensions
 	DEBUG_FLAGS += -fstrict-flex-arrays=3
-	LDFLAGS += -fuse-ld=mold
+	LDFLAGS += -fuse-ld=lld
 else
 	BASE_FLAGS += -Wno-fixed-enum-extension
 endif
