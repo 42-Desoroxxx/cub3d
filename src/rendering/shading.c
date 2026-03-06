@@ -19,9 +19,9 @@ mlx_color	shade(mlx_color color, float f)
 	unsigned int	g;
 	unsigned int	b;
 
-	r = (unsigned int)fminf(((color.rgba >> 24) & 0xFF) * f * 1.1f, 255);
-	g = (unsigned int)fminf(((color.rgba >> 16) & 0xFF) * f * 0.9f, 255);
-	b = (unsigned int)fminf(((color.rgba >> 8) & 0xFF) * f * 0.7f, 255);
+	r = (unsigned int) fminf(((color.rgba >> 24) & 0xFF) * f * 1.1f, 255);
+	g = (unsigned int) fminf(((color.rgba >> 16) & 0xFF) * f * 0.9f, 255);
+	b = (unsigned int) fminf(((color.rgba >> 8) & 0xFF) * f * 0.7f, 255);
 	return ((mlx_color){.rgba = (r << 24) | (g << 16) | (b << 8) | 0xFF});
 }
 
