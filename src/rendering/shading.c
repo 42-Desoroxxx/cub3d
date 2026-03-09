@@ -49,7 +49,7 @@ float	fog(const float distance)
 
 float	flat_fog(const int y)
 {
-	const float	d = fabsf(y - g_window_center_y) / g_window_center_y;
+	const float	d = fabsf((float) y - g_window_center_y) / g_window_center_y;
 
 	return (FLAT_FOG_MINIMUM + (FLAT_FOG_GRADIENT * d));
 }
