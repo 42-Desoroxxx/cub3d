@@ -47,7 +47,7 @@ static void	draw_wall_pixel(t_context *ctx, t_column *column, int x, int y)
 	color = mlx_get_image_pixel(ctx->context, column->texture->image,
 			column->tex_col_x, tex_y);
 	mlx_set_image_pixel(ctx->context, ctx->framebuffers.back,
-		x, y, shade(color, torch(x, y) * column->brightness));
+		x, y, torch_tint(color, torch(x, y) * column->brightness));
 }
 
 static void	draw_column_pixels(t_context *ctx, t_column *column, int x)
@@ -69,7 +69,7 @@ static void	draw_column_pixels(t_context *ctx, t_column *column, int x)
 			else
 				flat_color.rgba = ctx->scene.floor_color;
 			mlx_set_image_pixel(ctx->context, ctx->framebuffers.back,
-				x, y, shade(flat_color, torch_flat(x, y) * flat_fog(y)));
+				x, y, torch_tint(flat_color, torch_flat(x, y) * flat_fog(y)));
 		}
 	}
 }

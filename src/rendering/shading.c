@@ -13,16 +13,14 @@
 #include <cub3d.h>
 #include <math.h>
 
-mlx_color	shade(mlx_color color, float f)
+mlx_color	torch_tint(mlx_color color, float intensity)
 {
-	unsigned int	r;
-	unsigned int	g;
-	unsigned int	b;
-
-	r = (unsigned int) fminf(((color.rgba >> 24) & 0xFF) * f * 1.1f, 255);
-	g = (unsigned int) fminf(((color.rgba >> 16) & 0xFF) * f * 0.9f, 255);
-	b = (unsigned int) fminf(((color.rgba >> 8) & 0xFF) * f * 0.7f, 255);
-	return ((mlx_color){.rgba = (r << 24) | (g << 16) | (b << 8) | 0xFF});
+	return ((mlx_color) {
+		.r = (unsigned int) fminf(color.r * intensity * TORCH_RED, 255),
+		.g = (unsigned int) fminf(color.g * intensity * TORCH_GREEN, 255),
+		.b = (unsigned int) fminf(color.b * intensity * TORCH_BLUE, 255),
+		.a = 255
+	});
 }
 
 float	torch(int x, int y)

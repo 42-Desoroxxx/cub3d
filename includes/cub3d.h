@@ -13,16 +13,20 @@
 #ifndef CUB3D_H
 # define CUB3D_H
 
-# include <libft.h>
+# include <fcntl.h>
 # include <ft_memory.h>
 # include <ft_printf.h>
 # include <get_next_line.h>
+# include <libft.h>
 # include <mlx.h>
 # include <SDL_scancode.h>
-# include <fcntl.h>
 
 # define WINDOW_WIDTH 1280
 # define WINDOW_HEIGHT 720
+
+# define TORCH_RED 1.1F
+# define TORCH_GREEN 0.9F
+# define TORCH_BLUE 0.7F
 
 typedef enum e_direction : uint8_t
 {
@@ -157,7 +161,7 @@ cast_ray(t_context *context, float ray_x, float ray_z, float out[3]);
 // shading.c
 
 mlx_color
-shade(mlx_color color, float f);
+torch_tint(mlx_color color, float intensity);
 
 float
 torch(int x, int y);
