@@ -11,7 +11,6 @@
 /* ************************************************************************** */
 
 #include <cub3d.h>
-#include <math.h>
 
 static t_texture	*get_tex(t_context *ctx, int side, float rx, float rz)
 {
@@ -31,57 +30,54 @@ static void	compute_column(t_context *ctx, float ray_dir[2], float hit[3],
 
 	column->wall_height = (int)(WINDOW_HEIGHT / hit[0]);
 	column->wall_start = (WINDOW_HEIGHT - column->wall_height) / 2;
-	texture = get_tex(ctx, (int)hit[2], ray_dir[0], ray_dir[1]);
+	texture = get_tex(ctx, (int) hit[2], ray_dir[0], ray_dir[1]);
 	column->tex_col_x = (int)(hit[1] * texture->width) % texture->width;
-	column->brightness = fog(hit[0]) * (1 - 0.3f * (int)hit[2]);
+	column->brightness = fog(hit[0]) * (1 - 0.3f * (int) hit[2]);
 	column->texture = texture;
 }
 
 static void	draw_wall_pixel(t_context *ctx, t_column *column, int x, int y)
 {
-	int			tex_y;
+	const int	tex_y = ((y - column->wall_start) * column->texture->height)
+		/ column->wall_height;
 	mlx_color	color;
 
-	tex_y = ((y - column->wall_start) * column->texture->height)
-		/ column->wall_height;
 	color = mlx_get_image_pixel(ctx->context, column->texture->image,
 			column->tex_col_x, tex_y);
-	mlx_set_image_pixel(ctx->context, ctx->framebuffers.back,
-		x, y, torch_tint(color, torch(x, y) * column->brightness));
+	scale_rgb(&color, column->brightness);
+	mlx_set_image_pixel(ctx->context, ctx->framebuffers.back, x, y, color);
 }
 
 static void	draw_column_pixels(t_context *ctx, t_column *column, int x)
 {
-	mlx_color	flat_color;
-	int			wall_end;
+	const int	wall_end = column->wall_start + column->wall_height;
+	mlx_color	color;
 	int			y;
 
-	wall_end = column->wall_start + column->wall_height;
 	y = -1;
 	while (++y < WINDOW_HEIGHT)
 	{
 		if (y >= column->wall_start && y < wall_end)
-			draw_wall_pixel(ctx, column, x, y);
-		else
 		{
-			if (y < WINDOW_HEIGHT / 2)
-				flat_color.rgba = ctx->scene.ceiling_color;
-			else
-				flat_color.rgba = ctx->scene.floor_color;
-			mlx_set_image_pixel(ctx->context, ctx->framebuffers.back,
-				x, y, torch_tint(flat_color, torch_flat(x, y) * flat_fog(y)));
+			draw_wall_pixel(ctx, column, x, y);
+			continue ;
 		}
+		if (y < WINDOW_HEIGHT / 2)
+			color.rgba = ctx->scene.ceiling_color;
+		else
+			color.rgba = ctx->scene.floor_color;
+		scale_rgb(&color, flat_fog(y));
+		mlx_set_image_pixel(ctx->context, ctx->framebuffers.back, x, y, color);
 	}
 }
 
-void	draw_column(t_context *ctx, int x, float direction[4])
+void	draw_column(t_context *ctx, const int x, float direction[4])
 {
+	const float	offset = (float) 2 * x / WINDOW_WIDTH - 1;
 	float		hit[3];
 	float		ray_direction[2];
 	t_column	column;
-	float		offset;
 
-	offset = (float) 2 * x / WINDOW_WIDTH - 1;
 	ray_direction[0] = direction[0] + direction[2] * offset;
 	ray_direction[1] = direction[1] + direction[3] * offset;
 	cast_ray(ctx, ray_direction[0], ray_direction[1], hit);

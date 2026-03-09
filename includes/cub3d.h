@@ -24,11 +24,6 @@
 # define WINDOW_WIDTH 1280
 # define WINDOW_HEIGHT 720
 
-# define TORCH_RED 1.1F
-# define TORCH_GREEN 0.9F
-# define TORCH_BLUE 0.7F
-# define TORCH_LIGHT_FALLOFF 4
-
 # define FOG_DENSITY 0.2F
 # define FLAT_FOG_MINIMUM 0.05F
 # define FLAT_FOG_GRADIENT 0.95F
@@ -165,14 +160,8 @@ cast_ray(t_context *context, float ray_x, float ray_z, float out[3]);
 
 // shading.c
 
-mlx_color
-torch_tint(mlx_color color, float intensity);
-
-float
-torch(int x, int y);
-
-float
-torch_flat(int x, int y);
+void
+scale_rgb(mlx_color *color, float scale);
 
 float
 fog(float distance);
