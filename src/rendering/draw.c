@@ -64,7 +64,7 @@ static void	draw_column_pixels(t_context *ctx, t_column *column, int x)
 			draw_wall_pixel(ctx, column, x, y);
 		else
 		{
-			if (y < WINDOW_HEIGHT / 2)
+			if (y < WINDOW_CENTER_Y)
 				flat_color.rgba = ctx->scene.ceiling_color;
 			else
 				flat_color.rgba = ctx->scene.floor_color;

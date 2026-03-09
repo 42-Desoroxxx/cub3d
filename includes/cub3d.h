@@ -27,6 +27,11 @@
 # define TORCH_RED 1.1F
 # define TORCH_GREEN 0.9F
 # define TORCH_BLUE 0.7F
+# define TORCH_LIGHT_FALLOFF 4
+
+# define FOG_DENSITY 0.2F
+# define FLAT_FOG_MINIMUM 0.05F
+# define FLAT_FOG_GRADIENT 0.95F
 
 typedef enum e_direction : uint8_t
 {
@@ -170,7 +175,7 @@ float
 torch_flat(int x, int y);
 
 float
-fog(float dist);
+fog(float distance);
 
 float
 flat_fog(int y);

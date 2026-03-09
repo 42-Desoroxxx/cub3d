@@ -13,9 +13,12 @@
 #include <cub3d.h>
 #include <math.h>
 
+static const short	g_window_center_x = WINDOW_WIDTH / 2;
+static const short	g_window_center_y = WINDOW_HEIGHT / 2;
+
 mlx_color	torch_tint(mlx_color color, float intensity)
 {
-	return ((mlx_color) {
+	return ((mlx_color){
 		.r = (unsigned int) fminf(color.r * intensity * TORCH_RED, 255),
 		.g = (unsigned int) fminf(color.g * intensity * TORCH_GREEN, 255),
 		.b = (unsigned int) fminf(color.b * intensity * TORCH_BLUE, 255),
@@ -23,35 +26,30 @@ mlx_color	torch_tint(mlx_color color, float intensity)
 	});
 }
 
-float	torch(int x, int y)
+float	torch(const int x, const int y)
 {
-	float	dx;
-	float	dy;
+	const float	dx = (x - g_window_center_x) / g_window_center_x;
+	const float	dy = (y - g_window_center_y) / g_window_center_y;
 
-	dx = (x - WINDOW_WIDTH / 2) / (WINDOW_WIDTH / 2);
-	dy = (y - WINDOW_HEIGHT / 2) / (WINDOW_HEIGHT / 2);
-	return (1 / (1 + (dx * dx + dy * dy) * 4));
+	return (1 / (1 + (((dx * dx) + (dy * dy)) * TORCH_LIGHT_FALLOFF)));
 }
 
-float	torch_flat(int x, int y)
+float	torch_flat(const int x, const int y)
 {
-	float	dx;
-	float	dy;
+	const float	dx = (x - g_window_center_x) / g_window_center_x;
+	const float	dy = (y - WINDOW_HEIGHT) / WINDOW_HEIGHT;
 
-	dx = (x - WINDOW_WIDTH / 2) / (WINDOW_WIDTH / 2);
-	dy = (y - WINDOW_HEIGHT) / WINDOW_HEIGHT;
-	return (1 / (1 + (dx * dx + dy * dy) * 4));
+	return (1 / (1 + (((dx * dx) + (dy * dy)) * TORCH_LIGHT_FALLOFF)));
 }
 
-float	fog(float dist)
+float	fog(const float distance)
 {
-	return (1 / (1 + dist * dist * 0.2));
+	return (1 / (1 + ((distance * distance) * FOG_DENSITY)));
 }
 
-float	flat_fog(int y)
+float	flat_fog(const int y)
 {
-	float	d;
+	const float	d = fabsf(y - g_window_center_y) / g_window_center_y;
 
-	d = fabsf((float) y - WINDOW_HEIGHT / 2) / (WINDOW_HEIGHT / 2);
-	return (0.05f + 0.95f * d);
+	return (FLAT_FOG_MINIMUM + (FLAT_FOG_GRADIENT * d));
 }
