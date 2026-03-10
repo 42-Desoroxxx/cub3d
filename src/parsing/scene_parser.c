@@ -12,7 +12,7 @@
 
 #include <cub3d.h>
 
-static uint32_t	parse_color(char *str, int fd)
+static uint32_t	parse_color(char *str, int fd, char *line)
 {
 	int		rgb[3];
 	char	*p;
@@ -22,15 +22,18 @@ static uint32_t	parse_color(char *str, int fd)
 	rgb[0] = ft_atoi(str);
 	p = ft_strchr(str, ',');
 	if (!p)
+	{
+		free(line);
 		fatal_error_fd("Invalid color format", fd);
+	}
 	rgb[1] = ft_atoi(++p);
 	p = ft_strchr(p, ',');
 	if (!p)
+	{
+		free(line);
 		fatal_error_fd("Invalid color format", fd);
+	}
 	rgb[2] = ft_atoi(++p);
-	if (rgb[0] < 0 || rgb[0] > 255 || rgb[1] < 0 || rgb[1] > 255
-		|| rgb[2] < 0 || rgb[2] > 255)
-		fatal_error_fd("Color values must be in [0,255]", fd);
 	return (((uint32_t)rgb[0] << 24) | ((uint32_t)rgb[1] << 16)
 		| ((uint32_t)rgb[2] << 8) | 0xFF);
 }
@@ -55,9 +58,9 @@ static int	parse_header_line(char *line, t_scene *scene, int fd)
 	else if (ft_strncmp(line, "EA ", 3) == 0)
 		set_path(&scene->path_east, line + 3, fd);
 	else if (ft_strncmp(line, "F ", 2) == 0)
-		scene->floor_color = parse_color(line + 2, fd);
+		scene->floor_color = parse_color(line + 2, fd, line);
 	else if (ft_strncmp(line, "C ", 2) == 0)
-		scene->ceiling_color = parse_color(line + 2, fd);
+		scene->ceiling_color = parse_color(line + 2, fd, line);
 	else
 		return (0);
 	return (1);

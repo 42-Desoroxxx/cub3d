@@ -29,23 +29,23 @@ static void	count_char(const char c)
 void	validate_chars(char **map)
 {
 	char	c;
-	int		i;
-	int		j;
+	int		z;
+	int		x;
 
-	i = 0;
-	while (map[i])
+	z = 0;
+	while (map[z])
 	{
-		j = 0;
-		while (map[i][j])
+		x = 0;
+		while (map[z][x])
 		{
-			c = map[i][j];
+			c = map[z][x];
 			if (c != '0' && c != '1' && c != ' '
 				&& ft_strchr("NESW", c) == NULL)
 				fatal_error("Invalid character in map");
 			count_char(c);
-			j++;
+			x++;
 		}
-		i++;
+		z++;
 	}
 	count_char('F');
 }

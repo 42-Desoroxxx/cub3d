@@ -50,7 +50,11 @@ void	cleanup(void)
 	free_resource((void **)&g_context.textures.wall_east.image, destroy_image);
 	free_resource((void **)&g_context.textures.wall_south.image, destroy_image);
 	free_resource((void **)&g_context.textures.wall_west.image, destroy_image);
-	free_resource((void **)&g_context.map, (void (*)(void *))free_map);
+	if (g_context.map != NULL)
+	{
+		free_map(g_context.map);
+		g_context.map = NULL;
+	}
 	free_resource((void **)&g_context.framebuffers.back, destroy_image);
 	free_resource((void **)&g_context.framebuffers.front, destroy_image);
 	free_resource((void **)&g_context.window, destroy_window);
