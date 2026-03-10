@@ -54,7 +54,6 @@ static char	**read_map(const int fd)
 	map = ft_calloc(1, sizeof(char *));
 	if (map == NULL)
 		fatal_error_fd("Unable to allocate memory for map", fd);
-	map[0] = NULL;
 	while (line && line[0] != '\n')
 	{
 		new_map = add_to_map(map, line, fd);
