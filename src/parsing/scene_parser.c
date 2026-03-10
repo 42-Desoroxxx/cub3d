@@ -38,25 +38,31 @@ static uint32_t	parse_color(char *str, int fd, char *line)
 		| ((uint32_t)rgb[2] << 8) | 0xFF);
 }
 
-static void	set_path(char **dst, char *src, int fd)
+static void	set_path(char **dst, char *src, int fd, char *line)
 {
 	if (*dst != NULL)
+	{
+		free(line);
 		fatal_error_fd("Duplicate texture identifier", fd);
+	}
 	*dst = ft_strtrim(src, " \t");
 	if (*dst == NULL)
+	{
+		free(line);
 		fatal_error_fd("Memory allocation failed", fd);
+	}
 }
 
 static int	parse_header_line(char *line, t_scene *scene, int fd)
 {
 	if (ft_strncmp(line, "NO ", 3) == 0)
-		set_path(&scene->path_north, line + 3, fd);
+		set_path(&scene->path_north, line + 3, fd, line);
 	else if (ft_strncmp(line, "SO ", 3) == 0)
-		set_path(&scene->path_south, line + 3, fd);
+		set_path(&scene->path_south, line + 3, fd, line);
 	else if (ft_strncmp(line, "WE ", 3) == 0)
-		set_path(&scene->path_west, line + 3, fd);
+		set_path(&scene->path_west, line + 3, fd, line);
 	else if (ft_strncmp(line, "EA ", 3) == 0)
-		set_path(&scene->path_east, line + 3, fd);
+		set_path(&scene->path_east, line + 3, fd, line);
 	else if (ft_strncmp(line, "F ", 2) == 0)
 		scene->floor_color = parse_color(line + 2, fd, line);
 	else if (ft_strncmp(line, "C ", 2) == 0)

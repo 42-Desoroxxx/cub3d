@@ -50,7 +50,7 @@ static char	**flood_fill(char **map, int x, int z)
 		while (z < get_length(flood_map))
 		{
 			x = 0;
-			while (x < ((int) ft_strlen(flood_map[0])))
+			while (x < ((int) ft_strlen(flood_map[z])))
 			{
 				if (flood_map[z][x] == 'P')
 					check_and_fill(flood_map, x, z, &changes);

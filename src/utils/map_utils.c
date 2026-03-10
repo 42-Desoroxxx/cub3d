@@ -22,7 +22,7 @@ int	get_width(char **map)
 	return (width);
 }
 
-int	get_length(char **map) // TODO: Replace with huh ft_strlen
+int	get_length(char **map)
 {
 	int	length;
 
