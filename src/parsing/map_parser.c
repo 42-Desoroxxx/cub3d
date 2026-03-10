@@ -63,6 +63,7 @@ static char	**read_map(const int fd)
 		map = new_map;
 		line = get_next_line(fd);
 	}
+	free(line);
 	return (map);
 }
 
