@@ -25,6 +25,12 @@ _Noreturn void	fatal_error_fd(char *message, int fd)
 	fatal_error(message);
 }
 
+_Noreturn void	fatal_error_fd_line(char *message, int fd, char *line)
+{
+	free(line);
+	fatal_error_fd(message, fd);
+}
+
 _Noreturn void	fatal_error_map(char *message, char **map)
 {
 	free_map(map);

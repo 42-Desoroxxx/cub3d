@@ -112,6 +112,9 @@ _Noreturn void
 fatal_error_fd(char *message, int fd);
 
 _Noreturn void
+fatal_error_fd_line(char *message, int fd, char *line);
+
+_Noreturn void
 fatal_error_map(char *message, char **map);
 
 void

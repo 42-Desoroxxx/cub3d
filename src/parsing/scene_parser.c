@@ -22,18 +22,14 @@ static uint32_t	parse_color(char *str, int fd, char *line)
 	rgb[0] = ft_atoi(str);
 	comma = ft_strchr(str, ',');
 	if (!comma)
-	{
-		free(line);
-		fatal_error_fd("Invalid color format", fd);
-	}
+		fatal_error_fd_line("Invalid color format", fd, line);
 	rgb[1] = ft_atoi(++comma);
 	comma = ft_strchr(comma, ',');
 	if (!comma)
-	{
-		free(line);
-		fatal_error_fd("Invalid color format", fd);
-	}
+		fatal_error_fd_line("Invalid color format", fd, line);
 	rgb[2] = ft_atoi(++comma);
+	if (ft_strchr(comma, ','))
+		fatal_error_fd_line("Invalid color format", fd, line);
 	return (((uint32_t)rgb[0] << 24) | ((uint32_t)rgb[1] << 16)
 		| ((uint32_t)rgb[2] << 8) | 0xFF);
 }
@@ -41,26 +37,17 @@ static uint32_t	parse_color(char *str, int fd, char *line)
 static void	set_color(uint32_t *destination, char *source, int fd, char *line)
 {
 	if (*destination != 0)
-	{
-		free(line);
-		fatal_error_fd("Duplicate color identifier", fd);
-	}
+		fatal_error_fd_line("Duplicate color identifier", fd, line);
 	*destination = parse_color(source, fd, line);
 }
 
 static void	set_path(char **destination, char *source, int fd, char *line)
 {
 	if (*destination != NULL)
-	{
-		free(line);
-		fatal_error_fd("Duplicate texture identifier", fd);
-	}
+		fatal_error_fd_line("Duplicate texture identifier", fd, line);
 	*destination = ft_strtrim(source, " \t");
 	if (*destination == NULL)
-	{
-		free(line);
-		fatal_error_fd("Memory allocation failed", fd);
-	}
+		fatal_error_fd_line("Memory allocation failed", fd, line);
 }
 
 static int	parse_header_line(char *line, t_scene *scene, int fd)
