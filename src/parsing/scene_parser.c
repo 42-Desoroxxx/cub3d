@@ -15,38 +15,48 @@
 static uint32_t	parse_color(char *str, int fd, char *line)
 {
 	int		rgb[3];
-	char	*p;
+	char	*comma;
 
 	while (*str == ' ' || *str == '\t')
 		str++;
 	rgb[0] = ft_atoi(str);
-	p = ft_strchr(str, ',');
-	if (!p)
+	comma = ft_strchr(str, ',');
+	if (!comma)
 	{
 		free(line);
 		fatal_error_fd("Invalid color format", fd);
 	}
-	rgb[1] = ft_atoi(++p);
-	p = ft_strchr(p, ',');
-	if (!p)
+	rgb[1] = ft_atoi(++comma);
+	comma = ft_strchr(comma, ',');
+	if (!comma)
 	{
 		free(line);
 		fatal_error_fd("Invalid color format", fd);
 	}
-	rgb[2] = ft_atoi(++p);
+	rgb[2] = ft_atoi(++comma);
 	return (((uint32_t)rgb[0] << 24) | ((uint32_t)rgb[1] << 16)
 		| ((uint32_t)rgb[2] << 8) | 0xFF);
 }
 
-static void	set_path(char **dst, char *src, int fd, char *line)
+static void	set_color(uint32_t *destination, char *source, int fd, char *line)
 {
-	if (*dst != NULL)
+	if (*destination != 0)
+	{
+		free(line);
+		fatal_error_fd("Duplicate color identifier", fd);
+	}
+	*destination = parse_color(source, fd, line);
+}
+
+static void	set_path(char **destination, char *source, int fd, char *line)
+{
+	if (*destination != NULL)
 	{
 		free(line);
 		fatal_error_fd("Duplicate texture identifier", fd);
 	}
-	*dst = ft_strtrim(src, " \t");
-	if (*dst == NULL)
+	*destination = ft_strtrim(source, " \t");
+	if (*destination == NULL)
 	{
 		free(line);
 		fatal_error_fd("Memory allocation failed", fd);
@@ -64,9 +74,9 @@ static int	parse_header_line(char *line, t_scene *scene, int fd)
 	else if (ft_strncmp(line, "EA ", 3) == 0)
 		set_path(&scene->path_east, line + 3, fd, line);
 	else if (ft_strncmp(line, "F ", 2) == 0)
-		scene->floor_color = parse_color(line + 2, fd, line);
+		set_color(&scene->floor_color, line + 2, fd, line);
 	else if (ft_strncmp(line, "C ", 2) == 0)
-		scene->ceiling_color = parse_color(line + 2, fd, line);
+		set_color(&scene->ceiling_color, line + 2, fd, line);
 	else
 		return (0);
 	return (1);
@@ -76,10 +86,10 @@ void	parse_scene(int fd, t_scene *scene)
 {
 	char	*line;
 	char	*trimmed;
-	int		count;
+	int		headers_found;
 
-	count = 0;
-	while (count < 6)
+	headers_found = 0;
+	while (headers_found < 6)
 	{
 		line = get_next_line(fd);
 		if (!line)
@@ -93,7 +103,7 @@ void	parse_scene(int fd, t_scene *scene)
 				free(trimmed);
 				fatal_error_fd("Invalid scene identifier", fd);
 			}
-			count++;
+			headers_found++;
 		}
 		free(trimmed);
 	}
