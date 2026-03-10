@@ -16,20 +16,21 @@ static uint32_t	parse_color(char *str, int fd, char *line)
 {
 	int		rgb[3];
 	char	*comma;
+	char	*next;
 
 	while (*str == ' ' || *str == '\t')
 		str++;
-	rgb[0] = ft_atoi(str);
 	comma = ft_strchr(str, ',');
-	if (!comma)
+	if (!comma || !is_valid_rgb(str))
 		fatal_error_fd_line("Invalid color format", fd, line);
-	rgb[1] = ft_atoi(++comma);
-	comma = ft_strchr(comma, ',');
-	if (!comma)
+	rgb[0] = ft_atoi(str);
+	next = ft_strchr(comma + 1, ',');
+	if (!next || !is_valid_rgb(comma + 1))
 		fatal_error_fd_line("Invalid color format", fd, line);
-	rgb[2] = ft_atoi(++comma);
-	if (ft_strchr(comma, ','))
+	rgb[1] = ft_atoi(comma + 1);
+	if (!is_valid_rgb(next + 1))
 		fatal_error_fd_line("Invalid color format", fd, line);
+	rgb[2] = ft_atoi(next + 1);
 	return (((uint32_t)rgb[0] << 24) | ((uint32_t)rgb[1] << 16)
 		| ((uint32_t)rgb[2] << 8) | 0xFF);
 }

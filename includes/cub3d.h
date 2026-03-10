@@ -123,6 +123,9 @@ validate_args(int argc, const char *argv[]);
 int
 open_map(const char *argv[]);
 
+bool
+is_valid_rgb(char *str);
+
 int
 get_width(char **map);
 

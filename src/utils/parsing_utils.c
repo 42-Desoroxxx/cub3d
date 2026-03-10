@@ -40,3 +40,21 @@ int	open_map(const char *argv[])
 			"(Does it exist?)");
 	return (fd);
 }
+
+bool	is_valid_rgb(char *str)
+{
+	char	*start;
+
+	while (*str == ' ' || *str == '\t')
+		str++;
+	start = str;
+	if (!ft_isdigit(*str))
+		return (false);
+	while (ft_isdigit(*str))
+		str++;
+	while (*str == ' ' || *str == '\t')
+		str++;
+	if (*str != ',' && *str != '\0' && *str != '\n')
+		return (false);
+	return (ft_atoi(start) <= 255);
+}
